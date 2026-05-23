@@ -153,4 +153,20 @@ PlayerEvents.loggedIn(event => {
     }
 });
 
-console.info("SevTech Phase 3 Staging Subsystem fully loaded.");
+/**
+ * Handle Advancement Unlocks.
+ * When players earn custom advancements in our datapack, award them the matching game stage.
+ */
+PlayerEvents.advancement(event => {
+    const { player, advancement } = event;
+    
+    if (advancement.id.toString() === 'sevtech:age0_root') {
+        if (!player.stages.has(STAGES.ZERO)) {
+            player.stages.add(STAGES.ZERO);
+            player.tell(Text.green('You have advanced to the Stone Age (Stage Zero)! You can now break and craft primitive wooden logs and tools.'));
+            player.playSound('minecraft:ui.toast.challenge_complete');
+        }
+    }
+});
+
+console.info("SevTech Phase 5 Staging & Advancement Subsystem fully loaded.");

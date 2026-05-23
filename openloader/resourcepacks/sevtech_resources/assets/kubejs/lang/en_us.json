@@ -1,0 +1,25 @@
+{
+  "item.kubejs.creeper_tear": "Creeper Tear",
+  "item.kubejs.the_oj": "The OJ",
+
+  "item.kubejs.compressed_iron_gear": "Compressed Iron Gear",
+  "item.kubejs.enhanced_galgadorian_gear": "Enhanced Galgadorian Gear",
+  "item.kubejs.galgadorian_gear": "Galgadorian Gear",
+  "item.kubejs.modularium_gear": "Modularium Gear",
+  "item.kubejs.reinforced_metal_gear": "Reinforced Metal Gear",
+  "item.kubejs.steeleaf_gear": "Steeleaf Gear",
+
+  "item.kubejs.enhanced_galgadorian_plate": "Enhanced Galgadorian Plate",
+  "item.kubejs.galgadorian_plate": "Galgadorian Plate",
+  "item.kubejs.modularium_plate": "Modularium Plate",
+  "item.kubejs.reinforced_metal_plate": "Reinforced Metal Plate",
+  "item.kubejs.steeleaf_plate": "Steeleaf Plate",
+
+  "fluid.kubejs.liquid_slime": "Liquid Slime",
+  "fluid.kubejs.liquid_cheese": "Liquid Cheese",
+  "fluid.kubejs.molten_enhanced_galgadorian": "Molten Enhanced Galgadorian",
+  "fluid.kubejs.molten_galgadorian": "Molten Galgadorian",
+  "fluid.kubejs.molten_modularium": "Molten Modularium",
+  "fluid.kubejs.molten_reinforced_metal": "Molten Reinforced Metal",
+  "fluid.kubejs.molten_steeleaf": "Molten Steeleaf"
+}
