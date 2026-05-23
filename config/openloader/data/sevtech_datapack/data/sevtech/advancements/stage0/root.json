@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "item": "notreepunching:flint_knife"
+    },
+    "title": {
+      "translate": "advancements.stage0.root.title"
+    },
+    "description": {
+      "translate": "advancements.stage0.root.description"
+    },
+    "background": "minecraft:textures/block/cobblestone.png",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  }
+}

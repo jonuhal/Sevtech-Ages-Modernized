@@ -1,0 +1,30 @@
+{
+  "minecraft": {
+    "version": "1.20.1",
+    "modLoaders": [
+      {
+        "id": "forge-47.4.10",
+        "primary": true
+      }
+    ]
+  },
+  "manifestType": "minecraftModpack",
+  "manifestVersion": 1,
+  "name": "SevTech: Ages - Modernized",
+  "version": "1.0.0",
+  "author": "SevTech Team",
+  "files": [
+    { "projectID": 238086, "fileID": 4825946, "required": true },
+    { "projectID": 416294, "fileID": 4721956, "required": true },
+    { "projectID": 419699, "fileID": 5084920, "required": true },
+    { "projectID": 268655, "fileID": 4652250, "required": true },
+    { "projectID": 228525, "fileID": 4833215, "required": true },
+    { "projectID": 289043, "fileID": 4658252, "required": true },
+    { "projectID": 328085, "fileID": 4626159, "required": true },
+    { "projectID": 635042, "fileID": 4920556, "required": true },
+    { "projectID": 379849, "fileID": 4810234, "required": true },
+    { "projectID": 361026, "fileID": 4851216, "required": true },
+    { "projectID": 354339, "fileID": 4642231, "required": true }
+  ],
+  "overrides": "overrides"
+}

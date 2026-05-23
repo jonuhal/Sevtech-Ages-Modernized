@@ -87,13 +87,18 @@ const BLOCK_STAGES = {
  * If a player teleports to a staged dimension without the correct stage, 
  * cancel the teleport and notify them.
  */
-PlayerEvents.changedDimension(event => {
-    const { player, to } = event;
-    const requiredStage = DIMENSION_STAGES[to.toString()];
+PlayerEvents.tick(event => {
+    const { player } = event;
+    // Only check every 20 ticks (1 second) to be extremely performant!
+    if (player.age % 20 !== 0) return;
+
+    const dimension = player.level.dimension.toString();
+    const requiredStage = DIMENSION_STAGES[dimension];
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not possess the knowledge to survive in this dimension yet! Required Age: ${requiredStage.toUpperCase()}`));
-        event.setCanceled(true);
+        // Silently teleport the player back to the Overworld at their relative portal coordinates
+        player.server.runCommandSilent(`execute in minecraft:overworld run tp ${player.username} ~ ~ ~`);
     }
 });
 
@@ -101,14 +106,13 @@ PlayerEvents.changedDimension(event => {
  * Handle Item Pickups.
  * Prevents players from picking up items they are not staged to handle.
  */
-PlayerEvents.pickupItem(event => {
-    const { player, itemEntity } = event;
-    const itemStack = itemEntity.item;
-    const requiredStage = ITEM_STAGES[itemStack.id];
+ItemEvents.canPickUp(event => {
+    const { player, item } = event;
+    const requiredStage = ITEM_STAGES[item.id];
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not understand how to use this item! Required Age: ${requiredStage.toUpperCase()}`));
-        event.setCanceled(true);
+        event.cancel();
     }
 });
 
@@ -146,9 +150,10 @@ BlockEvents.rightClicked(event => {
 PlayerEvents.loggedIn(event => {
     const { player } = event;
     
-    // Default tutorial stage if the player is new
+    // Default tutorial and Stage Zero stages if the player is new
     if (!player.stages.has(STAGES.TUTORIAL)) {
         player.stages.add(STAGES.TUTORIAL);
+        player.stages.add(STAGES.ZERO);
         player.tell(Text.green('Welcome to SevTech: Ages (Upgraded to 1.20.1)! Begin by collecting flint and fibers.'));
     }
 });
@@ -160,11 +165,51 @@ PlayerEvents.loggedIn(event => {
 PlayerEvents.advancement(event => {
     const { player, advancement } = event;
     
-    if (advancement.id.toString() === 'sevtech:age0_root') {
+    if (advancement.id.toString() === 'sevtech:stage0/root') {
         if (!player.stages.has(STAGES.ZERO)) {
             player.stages.add(STAGES.ZERO);
             player.tell(Text.green('You have advanced to the Stone Age (Stage Zero)! You can now break and craft primitive wooden logs and tools.'));
             player.playSound('minecraft:ui.toast.challenge_complete');
+        }
+    }
+});
+
+/**
+ * Handle Grass Breaking to Drop Plant Fiber.
+ * Since other mods or internal configs can override datapack loot tables,
+ * this KubeJS event guarantees that breaking grass with bare hands drops plant fibers.
+ */
+BlockEvents.broken(event => {
+    const { block, level, player } = event;
+    
+    // Only run on the server side
+    if (level.isClientSide()) return;
+    
+    // 1. Grass & Tall Grass drop Plant Fiber
+    if (block.id === 'minecraft:grass' || block.id === 'minecraft:tall_grass') {
+        const chance = block.id === 'minecraft:grass' ? 0.65 : 0.80;
+        if (Math.random() < chance) {
+            // Do not drop if using shears or silk touch
+            const mainHandItem = player.getMainHandItem();
+            if (mainHandItem.id === 'minecraft:shears' || mainHandItem.hasEnchantment('minecraft:silk_touch', 1)) {
+                return;
+            }
+            
+            // Spawn plant fiber entity safely
+            let itemEntity = level.createEntity('item');
+            itemEntity.item = 'notreepunching:plant_fiber';
+            itemEntity.setPosition(block.x + 0.5, block.y + 0.5, block.z + 0.5);
+            itemEntity.spawn();
+        }
+    }
+
+    // 2. Tree Leaves drop Sticks (15% chance, matching the original SevTech Ages)
+    if (block.hasTag('minecraft:leaves')) {
+        if (Math.random() < 0.15) {
+            let itemEntity = level.createEntity('item');
+            itemEntity.item = 'minecraft:stick';
+            itemEntity.setPosition(block.x + 0.5, block.y + 0.5, block.z + 0.5);
+            itemEntity.spawn();
         }
     }
 });

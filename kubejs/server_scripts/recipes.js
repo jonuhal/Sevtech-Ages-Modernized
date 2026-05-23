@@ -39,7 +39,7 @@ ServerEvents.recipes(event => {
     // ==================================
     // 2. No Tree Punching (Age 0 Flint Gating)
     // ==================================
-    if (Platform.isModLoaded('notreepunching')) {
+    if (Platform.isLoaded('notreepunching')) {
         // Force loose rock + flint combination for early flint tools
         event.remove({ output: 'notreepunching:flint_knife' });
         event.shaped('notreepunching:flint_knife', [
@@ -77,7 +77,7 @@ ServerEvents.recipes(event => {
     // ==================================
 
     // Primitive Fiber Torch (Requires stick and plant fibers in Age 0)
-    if (Platform.isModLoaded('notreepunching')) {
+    if (Platform.isLoaded('notreepunching')) {
         event.shaped('3x minecraft:torch', [
             'F',
             'S'
@@ -100,7 +100,7 @@ ServerEvents.recipes(event => {
     // ==================================
     // 4. Create Mod Integration (Age 0/1 Kinetic Era)
     // ==================================
-    if (Platform.isModLoaded('create')) {
+    if (Platform.isLoaded('create')) {
         
         // Mechanical Waterwheel (Requires wood boards and copper nuggets in Age 1)
         event.remove({ output: 'create:water_wheel' });
