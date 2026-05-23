@@ -1,28 +1,26 @@
 {
   "display": {
     "icon": {
-      "item": "notreepunching:flint_axe"
+      "item": "minecraft:oak_log"
     },
     "title": {
-      "translate": "advancements.stage0.firsttool.title"
+      "translate": "advancements.stage0.firstbreak.title"
     },
     "description": {
-      "translate": "advancements.stage0.firsttool.description"
+      "translate": "advancements.stage0.firstbreak.description"
     },
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
   },
-  "parent": "sevtech:stage0/root",
+  "parent": "sevtech:stage0/firsttool",
   "criteria": {
-    "has_axe": {
+    "has_log": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": [
-              "notreepunching:flint_axe"
-            ]
+            "tag": "minecraft:logs"
           }
         ]
       }

@@ -20,6 +20,11 @@ StartupEvents.registry('item', event => {
         .texture('kubejs:item/creeper_tear')
         .displayName('Creeper Tear');
 
+    event.create('grass_fiber_mesh')
+        .texture('kubejs:item/grass_fiber_mesh')
+        .displayName('Grass Fiber Mesh')
+        .containerItem('kubejs:grass_fiber_mesh');
+
     event.create('the_oj')
         .texture('kubejs:item/the_oj')
         .displayName('The OJ');

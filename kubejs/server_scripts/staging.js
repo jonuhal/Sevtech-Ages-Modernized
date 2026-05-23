@@ -37,6 +37,7 @@ const ITEM_STAGES = {
     'create:copper_sheet': STAGES.ONE,
     'create:bronze_ingot': STAGES.ONE,
     'create:bronze_sheet': STAGES.ONE,
+    'occultism:datura_seeds': STAGES.ONE,
 
     // Stage Two (Iron/Arcane Age) Locks
     'minecraft:iron_ingot': STAGES.TWO,
@@ -82,6 +83,30 @@ const BLOCK_STAGES = {
     'mekanism:enrichment_chamber': STAGES.FIVE
 };
 
+// 5. Block Breaking / Ore Staging Locks (Simulating OreStages)
+const BLOCK_BREAK_STAGES = {
+    // Stage One (Bronze Age / Stone Age transition) Ore Locks
+    'minecraft:coal_ore': STAGES.ONE,
+    'minecraft:deepslate_coal_ore': STAGES.ONE,
+    'minecraft:coal_block': STAGES.ONE,
+    'minecraft:copper_ore': STAGES.ONE,
+    'minecraft:deepslate_copper_ore': STAGES.ONE,
+    'minecraft:raw_copper_block': STAGES.ONE,
+    'minecraft:copper_block': STAGES.ONE,
+
+    // Stage Two (Iron Age) Ore Locks
+    'minecraft:iron_ore': STAGES.TWO,
+    'minecraft:deepslate_iron_ore': STAGES.TWO,
+    'minecraft:raw_iron_block': STAGES.TWO,
+    'minecraft:iron_block': STAGES.TWO,
+    'minecraft:gold_ore': STAGES.TWO,
+    'minecraft:deepslate_gold_ore': STAGES.TWO,
+    'minecraft:lapis_ore': STAGES.TWO,
+    'minecraft:deepslate_lapis_ore': STAGES.TWO,
+    'minecraft:redstone_ore': STAGES.TWO,
+    'minecraft:deepslate_redstone_ore': STAGES.TWO
+};
+
 /**
  * Handle Player Teleportation / Dimension Staging.
  * If a player teleports to a staged dimension without the correct stage, 
@@ -89,7 +114,13 @@ const BLOCK_STAGES = {
  */
 PlayerEvents.tick(event => {
     const { player } = event;
-    // Only check every 20 ticks (1 second) to be extremely performant!
+    
+    // Enable classic step assist (step up 1 block without jumping, matching legacy Cyclic feature)
+    if (player.stepHeight !== 1.06) {
+        player.stepHeight = 1.06;
+    }
+
+    // Only check dimension staging every 20 ticks (1 second) to be extremely performant!
     if (player.age % 20 !== 0) return;
 
     const dimension = player.level.dimension.toString();
@@ -150,6 +181,9 @@ BlockEvents.rightClicked(event => {
 PlayerEvents.loggedIn(event => {
     const { player } = event;
     
+    // Enable classic step assist immediately on login
+    player.stepHeight = 1.06;
+    
     // Default tutorial and Stage Zero stages if the player is new
     if (!player.stages.has(STAGES.TUTORIAL)) {
         player.stages.add(STAGES.TUTORIAL);
@@ -175,15 +209,22 @@ PlayerEvents.advancement(event => {
 });
 
 /**
- * Handle Grass Breaking to Drop Plant Fiber.
- * Since other mods or internal configs can override datapack loot tables,
- * this KubeJS event guarantees that breaking grass with bare hands drops plant fibers.
+ * Handle Block Breaking and Ore Staging.
+ * Prevents players from mining ores early, and implements fiber drops from grass.
  */
 BlockEvents.broken(event => {
     const { block, level, player } = event;
     
     // Only run on the server side
     if (level.isClientSide()) return;
+    
+    // 0. Block Ore Breaking based on Staging (Simulating OreStages mod)
+    const requiredBreakStage = BLOCK_BREAK_STAGES[block.id];
+    if (requiredBreakStage && !player.stages.has(requiredBreakStage)) {
+        player.tell(Text.red(`You do not possess the tools or knowledge to mine this block! Required Age: ${requiredBreakStage.toUpperCase()}`));
+        event.setCanceled(true);
+        return;
+    }
     
     // 1. Grass & Tall Grass drop Plant Fiber
     if (block.id === 'minecraft:grass' || block.id === 'minecraft:tall_grass') {
@@ -210,6 +251,25 @@ BlockEvents.broken(event => {
             itemEntity.item = 'minecraft:stick';
             itemEntity.setPosition(block.x + 0.5, block.y + 0.5, block.z + 0.5);
             itemEntity.spawn();
+        }
+    }
+});
+
+/**
+ * Filter Early Entity Spawns.
+ * Discards Occultism's Demon's Dream Seeds if they drop near an Age 0 player.
+ */
+EntityEvents.spawned(event => {
+    const { entity, level } = event;
+    if (level.isClientSide()) return;
+    
+    if (entity.type === 'minecraft:item') {
+        if (entity.item.id === 'occultism:datura_seeds') {
+            // Find closest player within 8 blocks of the spawn point
+            let player = level.getNearestPlayer(entity.x, entity.y, entity.z, 8, false);
+            if (player && !player.stages.has(STAGES.ONE)) {
+                entity.discard(); // Early filter
+            }
         }
     }
 });

@@ -1,28 +1,26 @@
 {
   "display": {
     "icon": {
-      "item": "notreepunching:flint_axe"
+      "item": "minecraft:oak_planks"
     },
     "title": {
-      "translate": "advancements.stage0.firsttool.title"
+      "translate": "advancements.stage0.collectplank.title"
     },
     "description": {
-      "translate": "advancements.stage0.firsttool.description"
+      "translate": "advancements.stage0.collectplank.description"
     },
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
   },
-  "parent": "sevtech:stage0/root",
+  "parent": "sevtech:stage0/firstbreak",
   "criteria": {
-    "has_axe": {
+    "has_plank": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": [
-              "notreepunching:flint_axe"
-            ]
+            "tag": "minecraft:planks"
           }
         ]
       }

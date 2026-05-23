@@ -40,6 +40,22 @@ ServerEvents.recipes(event => {
     // 2. No Tree Punching (Age 0 Flint Gating)
     // ==================================
     if (Platform.isLoaded('notreepunching')) {
+        // Grass Fiber Mesh Recipe
+        event.shaped('kubejs:grass_fiber_mesh', [
+            'SFS',
+            'F F',
+            'SFS'
+        ], {
+            S: 'minecraft:stick',
+            F: 'notreepunching:plant_string'
+        });
+
+        // Gravel + Grass Fiber Mesh -> Flint (Mesh remains in grid)
+        event.shapeless('minecraft:flint', [
+            'minecraft:gravel',
+            'kubejs:grass_fiber_mesh'
+        ]);
+
         // Force loose rock + flint combination for early flint tools
         event.remove({ output: 'notreepunching:flint_knife' });
         event.shaped('notreepunching:flint_knife', [
@@ -70,6 +86,14 @@ ServerEvents.recipes(event => {
             S: 'minecraft:stick',
             F: 'notreepunching:plant_fiber'
         });
+
+        // Crafting Table (Work Stump carving)
+        // Remove standard crafting table recipes (forces carving a Work Stump out of a log using a flint knife!)
+        event.remove({ output: 'minecraft:crafting_table' });
+        event.shapeless('minecraft:crafting_table', [
+            '#minecraft:logs',
+            'notreepunching:flint_knife'
+        ]).keepIngredient('notreepunching:flint_knife');
     }
 
     // ==================================

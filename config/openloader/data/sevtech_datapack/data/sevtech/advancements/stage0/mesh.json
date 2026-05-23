@@ -1,27 +1,27 @@
 {
   "display": {
     "icon": {
-      "item": "notreepunching:flint_axe"
+      "item": "kubejs:grass_fiber_mesh"
     },
     "title": {
-      "translate": "advancements.stage0.firsttool.title"
+      "translate": "advancements.stage0.mesh.title"
     },
     "description": {
-      "translate": "advancements.stage0.firsttool.description"
+      "translate": "advancements.stage0.mesh.description"
     },
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
   },
-  "parent": "sevtech:stage0/root",
+  "parent": "sevtech:stage0/fiber",
   "criteria": {
-    "has_axe": {
+    "has_mesh": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
             "items": [
-              "notreepunching:flint_axe"
+              "kubejs:grass_fiber_mesh"
             ]
           }
         ]

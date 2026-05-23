@@ -1,27 +1,27 @@
 {
   "display": {
     "icon": {
-      "item": "notreepunching:flint_axe"
+      "item": "minecraft:crafting_table"
     },
     "title": {
-      "translate": "advancements.stage0.firsttool.title"
+      "translate": "advancements.stage0.workstump.title"
     },
     "description": {
-      "translate": "advancements.stage0.firsttool.description"
+      "translate": "advancements.stage0.workstump.description"
     },
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
   },
-  "parent": "sevtech:stage0/root",
+  "parent": "sevtech:stage0/collectplank",
   "criteria": {
-    "has_axe": {
+    "has_table": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
             "items": [
-              "notreepunching:flint_axe"
+              "minecraft:crafting_table"
             ]
           }
         ]
