@@ -114,10 +114,13 @@ const BLOCK_BREAK_STAGES = {
  */
 PlayerEvents.tick(event => {
     const { player } = event;
-    
+
     // Enable classic step assist (step up 1 block without jumping, matching legacy Cyclic feature)
-    if (player.maxUpStep !== 1.06) {
-        player.maxUpStep = 1.06;
+    try {
+        if (player.getMaxUpStep() !== 1.06) {
+            player.setMaxUpStep(1.06);
+        }
+    } catch (e) {
     }
 
     // Only check dimension staging every 20 ticks (1 second) to be extremely performant!
@@ -180,10 +183,13 @@ BlockEvents.rightClicked(event => {
  */
 PlayerEvents.loggedIn(event => {
     const { player } = event;
-    
+
     // Enable classic step assist immediately on login
-    player.maxUpStep = 1.06;
-    
+    try {
+        player.setMaxUpStep(1.06);
+    } catch (e) {
+    }
+
     // Default tutorial and Stage Zero stages if the player is new
     if (!player.stages.has(STAGES.TUTORIAL)) {
         player.stages.add(STAGES.TUTORIAL);
@@ -198,7 +204,7 @@ PlayerEvents.loggedIn(event => {
  */
 PlayerEvents.advancement(event => {
     const { player, advancement } = event;
-    
+
     if (advancement.id.toString() === 'sevtech:stage0/root') {
         if (!player.stages.has(STAGES.ZERO)) {
             player.stages.add(STAGES.ZERO);
@@ -214,10 +220,10 @@ PlayerEvents.advancement(event => {
  */
 BlockEvents.broken(event => {
     const { block, level, player } = event;
-    
+
     // Only run on the server side
     if (level.isClientSide()) return;
-    
+
     // 0. Block Ore Breaking based on Staging (Simulating OreStages mod)
     const requiredBreakStage = BLOCK_BREAK_STAGES[block.id];
     if (requiredBreakStage && !player.stages.has(requiredBreakStage)) {
@@ -225,7 +231,7 @@ BlockEvents.broken(event => {
         event.setCanceled(true);
         return;
     }
-    
+
     // 1. Grass & Tall Grass drop Plant Fiber
     if (block.id === 'minecraft:grass' || block.id === 'minecraft:tall_grass') {
         const chance = block.id === 'minecraft:grass' ? 0.65 : 0.80;
@@ -235,7 +241,7 @@ BlockEvents.broken(event => {
             if (mainHandItem.id === 'minecraft:shears' || mainHandItem.hasEnchantment('minecraft:silk_touch', 1)) {
                 return;
             }
-            
+
             // Spawn plant fiber entity safely
             let itemEntity = level.createEntity('item');
             itemEntity.item = 'notreepunching:plant_fiber';
@@ -261,9 +267,9 @@ BlockEvents.broken(event => {
  */
 LootEvents.modifiers(event => {
     event.addBlockLootModifier('minecraft:grass')
-         .removeLoot('occultism:datura_seeds');
+        .removeLoot('occultism:datura_seeds');
     event.addBlockLootModifier('minecraft:tall_grass')
-         .removeLoot('occultism:datura_seeds');
+        .removeLoot('occultism:datura_seeds');
 });
 
 console.info("SevTech Phase 5 Staging & Advancement Subsystem fully loaded.");
