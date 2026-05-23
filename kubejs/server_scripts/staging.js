@@ -1,13 +1,14 @@
 // priority: 10
 
 /**
- * SevTech: Ages 1.20.1 Core Staging Script.
+ * SevTech: Ages 1.20.1 Core Staging Script (Phase 3 Finalized).
  * 
- * Replaces the legacy 1.12.2 ZenStages and orestages configuration.
- * Server scripts handle recipe modification, game stages, and player/world events.
+ * Replaces legacy CraftTweaker ZenStages, TinkerStages, and ItemStages.
+ * This server-side KubeJS script manages all stages, dimension restrictions,
+ * ore/item pickup gating, and item interaction blocks.
  */
 
-// Define core stages
+// 1. Stage Definitions
 const STAGES = {
     TUTORIAL: 'tutorial',
     ZERO: 'zero',
@@ -20,19 +21,65 @@ const STAGES = {
     DISABLED: 'disabled'
 };
 
-// Map dimensions to the stage required to enter them
+// 2. Dimension Gating Mapping
 const DIMENSION_STAGES = {
-    // Undergarden (replaces Betweenlands) -> Stage One
     'undergarden:undergarden': STAGES.ONE,
-    
-    // Twilight Forest -> Stage Two
     'twilightforest:twilight_forest': STAGES.TWO,
-    
-    // Nether -> Stage Three
     'minecraft:the_nether': STAGES.THREE,
-    
-    // The End -> Stage Four
     'minecraft:the_end': STAGES.FOUR
+};
+
+// 3. Item Staging Mapping (Pickup & Usage locks)
+const ITEM_STAGES = {
+    // Stage One (Bronze Age) Locks
+    'minecraft:copper_ingot': STAGES.ONE,
+    'minecraft:copper_block': STAGES.ONE,
+    'create:copper_sheet': STAGES.ONE,
+    'create:bronze_ingot': STAGES.ONE,
+    'create:bronze_sheet': STAGES.ONE,
+
+    // Stage Two (Iron/Arcane Age) Locks
+    'minecraft:iron_ingot': STAGES.TWO,
+    'minecraft:iron_ore': STAGES.TWO,
+    'minecraft:raw_iron': STAGES.TWO,
+    'minecraft:gold_ingot': STAGES.TWO,
+    'minecraft:gold_ore': STAGES.TWO,
+    'minecraft:lapis_lazuli': STAGES.TWO,
+    'minecraft:lapis_ore': STAGES.TWO,
+    'minecraft:redstone': STAGES.TWO,
+    'minecraft:redstone_ore': STAGES.TWO,
+    'minecraft:furnace': STAGES.TWO,
+
+    // Stage Three (Industrial Age) Locks
+    'create:steel_ingot': STAGES.THREE,
+    'immersiveengineering:ingot_steel': STAGES.THREE,
+    'immersiveengineering:ingot_lead': STAGES.THREE,
+    'immersiveengineering:ingot_nickel': STAGES.THREE,
+    'minecraft:soul_sand': STAGES.THREE,
+    'minecraft:quartz': STAGES.THREE,
+    'minecraft:nether_quartz_ore': STAGES.THREE,
+
+    // Stage Four (High Tech Age) Locks
+    'ae2:certus_quartz_crystal': STAGES.FOUR,
+    'ae2:charged_certus_quartz_crystal': STAGES.FOUR,
+    'pneumaticcraft:ingot_iron_compressed': STAGES.FOUR,
+
+    // Stage Five (Space Age) Locks
+    'mekanism:ingot_osmium': STAGES.FIVE,
+    'mekanism:osmium_ore': STAGES.FIVE,
+    'immersiveengineering:ingot_uranium': STAGES.FIVE,
+    'immersiveengineering:ore_uranium': STAGES.FIVE,
+    'ad_astra:steel_engine': STAGES.FIVE,
+    'ad_astra:tier_1_rocket': STAGES.FIVE
+};
+
+// 4. Block Interaction / Placement Gating Mapping
+const BLOCK_STAGES = {
+    'minecraft:furnace': STAGES.TWO,
+    'minecraft:blast_furnace': STAGES.THREE,
+    'minecraft:smoker': STAGES.TWO,
+    'ae2:controller': STAGES.FOUR,
+    'mekanism:enrichment_chamber': STAGES.FIVE
 };
 
 /**
@@ -46,17 +93,55 @@ PlayerEvents.changedDimension(event => {
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not possess the knowledge to survive in this dimension yet! Required Age: ${requiredStage.toUpperCase()}`));
-        
-        // Cancel teleportation. In KubeJS 1.20.1, we cancel the teleport event.
-        // If cancellation is not supported directly on this event in certain Forge versions, 
-        // we can teleport them back to their respawn position or spawn point.
+        event.setCanceled(true);
+    }
+});
+
+/**
+ * Handle Item Pickups.
+ * Prevents players from picking up items they are not staged to handle.
+ */
+PlayerEvents.pickupItem(event => {
+    const { player, itemEntity } = event;
+    const itemStack = itemEntity.item;
+    const requiredStage = ITEM_STAGES[itemStack.id];
+
+    if (requiredStage && !player.stages.has(requiredStage)) {
+        player.tell(Text.red(`You do not understand how to use this item! Required Age: ${requiredStage.toUpperCase()}`));
+        event.setCanceled(true);
+    }
+});
+
+/**
+ * Handle Block Placement.
+ * Prevents players from placing advanced blocks they haven't researched.
+ */
+BlockEvents.placed(event => {
+    const { player, block } = event;
+    const requiredStage = BLOCK_STAGES[block.id];
+
+    if (requiredStage && !player.stages.has(requiredStage)) {
+        player.tell(Text.red(`You do not possess the knowledge to construct this block! Required Age: ${requiredStage.toUpperCase()}`));
+        event.setCanceled(true);
+    }
+});
+
+/**
+ * Handle Right-Click Block Interaction.
+ * Prevents players from using advanced machines/stations (e.g. AE2 Controller, Mekanism Enrichment Chamber).
+ */
+BlockEvents.rightClicked(event => {
+    const { player, block } = event;
+    const requiredStage = BLOCK_STAGES[block.id];
+
+    if (requiredStage && !player.stages.has(requiredStage)) {
+        player.tell(Text.red(`You do not know how this mechanism functions! Required Age: ${requiredStage.toUpperCase()}`));
         event.setCanceled(true);
     }
 });
 
 /**
  * Handle Player Login / Sync.
- * Perform check on login to ensure stages are synchronized or setup defaults.
  */
 PlayerEvents.loggedIn(event => {
     const { player } = event;
@@ -68,9 +153,4 @@ PlayerEvents.loggedIn(event => {
     }
 });
 
-/**
- * Custom Staging Event Hook.
- * Developers can call /gamestage add <player> <stage> in-game.
- */
-// This script runs on the server and sets up the event listening architecture
-console.info("SevTech Staging Subsystem Initialized.");
+console.info("SevTech Phase 3 Staging Subsystem fully loaded.");
