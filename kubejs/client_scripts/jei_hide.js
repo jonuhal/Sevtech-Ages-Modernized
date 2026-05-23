@@ -42,6 +42,60 @@ if (typeof JEIEvents !== 'undefined') {
             event.hide(item);
         });
 
+        // 3. Hide entire advanced mods from JEI in Age 0
+        const gatedMods = [
+            'ad_astra',     // Stage 5
+            'occultism',    // Stage 1/2
+            'undergarden'   // Stage 1
+        ];
+        gatedMods.forEach(mod => {
+            event.hide(RegExp(`^${mod}:.*`));
+        });
+
+        // 4. Hide advanced vanilla elements from JEI in Age 0 (Redstone, beds, ores, chainmail/armor)
+        const advancedVanillaPatterns = [
+            /^minecraft:iron_.*/,
+            /^minecraft:gold_.*/,
+            /^minecraft:raw_gold.*/,
+            /^minecraft:diamond_.*/,
+            /^minecraft:netherite_.*/,
+            /^minecraft:redstone.*/,
+            'minecraft:repeater',
+            'minecraft:comparator',
+            'minecraft:piston',
+            'minecraft:sticky_piston',
+            'minecraft:observer',
+            'minecraft:dispenser',
+            'minecraft:dropper',
+            'minecraft:daylight_detector',
+            /^minecraft:.*_bed$/,
+            /^minecraft:leather_(helmet|chestplate|leggings|boots)/,
+            /^minecraft:chainmail_(helmet|chestplate|leggings|boots)/,
+            /^minecraft:.*_spawn_egg$/,
+            'minecraft:coal_ore',
+            'minecraft:deepslate_coal_ore',
+            'minecraft:copper_ore',
+            'minecraft:deepslate_copper_ore',
+            'minecraft:iron_ore',
+            'minecraft:deepslate_iron_ore',
+            'minecraft:gold_ore',
+            'minecraft:deepslate_gold_ore',
+            'minecraft:redstone_ore',
+            'minecraft:deepslate_redstone_ore',
+            'minecraft:lapis_ore',
+            'minecraft:deepslate_lapis_ore',
+            'minecraft:emerald_ore',
+            'minecraft:deepslate_emerald_ore',
+            'minecraft:diamond_ore',
+            'minecraft:deepslate_diamond_ore',
+            'minecraft:nether_gold_ore',
+            'minecraft:nether_quartz_ore'
+        ];
+
+        advancedVanillaPatterns.forEach(pattern => {
+            event.hide(pattern);
+        });
+
         console.info("JEI Staged Items cleanups applied successfully.");
     });
 }

@@ -116,8 +116,8 @@ PlayerEvents.tick(event => {
     const { player } = event;
     
     // Enable classic step assist (step up 1 block without jumping, matching legacy Cyclic feature)
-    if (player.stepHeight !== 1.06) {
-        player.stepHeight = 1.06;
+    if (player.maxUpStep !== 1.06) {
+        player.maxUpStep = 1.06;
     }
 
     // Only check dimension staging every 20 ticks (1 second) to be extremely performant!
@@ -182,7 +182,7 @@ PlayerEvents.loggedIn(event => {
     const { player } = event;
     
     // Enable classic step assist immediately on login
-    player.stepHeight = 1.06;
+    player.maxUpStep = 1.06;
     
     // Default tutorial and Stage Zero stages if the player is new
     if (!player.stages.has(STAGES.TUTORIAL)) {
@@ -256,22 +256,14 @@ BlockEvents.broken(event => {
 });
 
 /**
- * Filter Early Entity Spawns.
- * Discards Occultism's Demon's Dream Seeds if they drop near an Age 0 player.
+ * Remove Demon's Dream Seeds from Grass drops at the root (Loot table level).
+ * This ensures that seeds never drop from breaking grass, resolving floating/unpickable items.
  */
-EntityEvents.spawned(event => {
-    const { entity, level } = event;
-    if (level.isClientSide()) return;
-    
-    if (entity.type === 'minecraft:item') {
-        if (entity.item.id === 'occultism:datura_seeds') {
-            // Find closest player within 8 blocks of the spawn point
-            let player = level.getNearestPlayer(entity.x, entity.y, entity.z, 8, false);
-            if (player && !player.stages.has(STAGES.ONE)) {
-                entity.discard(); // Early filter
-            }
-        }
-    }
+LootEvents.modifiers(event => {
+    event.addBlockLootModifier('minecraft:grass')
+         .removeLoot('occultism:datura_seeds');
+    event.addBlockLootModifier('minecraft:tall_grass')
+         .removeLoot('occultism:datura_seeds');
 });
 
 console.info("SevTech Phase 5 Staging & Advancement Subsystem fully loaded.");

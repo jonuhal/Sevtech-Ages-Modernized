@@ -40,21 +40,32 @@ ServerEvents.recipes(event => {
     // 2. No Tree Punching (Age 0 Flint Gating)
     // ==================================
     if (Platform.isLoaded('notreepunching')) {
-        // Grass Fiber Mesh Recipe
+        // Grass Fiber Mesh Recipe (2x2 grid to break circular dependency!)
         event.shaped('kubejs:grass_fiber_mesh', [
-            'SFS',
-            'F F',
-            'SFS'
+            'SF',
+            'FS'
         ], {
             S: 'minecraft:stick',
             F: 'notreepunching:plant_string'
         });
 
-        // Gravel + Grass Fiber Mesh -> Flint (Mesh remains in grid)
+        // Disable all standard flint recipes (such as NTP's 3 gravel -> 1 flint recipe)
+        event.remove({ output: 'minecraft:flint', not: { input: 'kubejs:grass_fiber_mesh' } });
+
+        // Gravel + Grass Fiber Mesh -> Flint (Mesh gets damaged by 1 and remains in grid)
         event.shapeless('minecraft:flint', [
             'minecraft:gravel',
-            'kubejs:grass_fiber_mesh'
+            Item.of('kubejs:grass_fiber_mesh').damageIngredient()
         ]);
+
+        // Chopping Logs into Planks using the Flint Axe (representing the legacy Chopping Block workflow)
+        const woodTypes = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak', 'mangrove', 'cherry'];
+        woodTypes.forEach(wood => {
+            event.shapeless(`2x minecraft:${wood}_planks`, [
+                `minecraft:${wood}_log`,
+                Item.of('notreepunching:flint_axe').damageIngredient()
+            ]);
+        });
 
         // Force loose rock + flint combination for early flint tools
         event.remove({ output: 'notreepunching:flint_knife' });

@@ -23,7 +23,7 @@ StartupEvents.registry('item', event => {
     event.create('grass_fiber_mesh')
         .texture('kubejs:item/grass_fiber_mesh')
         .displayName('Grass Fiber Mesh')
-        .containerItem('kubejs:grass_fiber_mesh');
+        .maxDamage(64);
 
     event.create('the_oj')
         .texture('kubejs:item/the_oj')
