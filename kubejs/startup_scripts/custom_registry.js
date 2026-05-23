@@ -1,14 +1,21 @@
 // priority: 0
 
 /**
- * SevTech: Ages 1.20.1 Custom Registry Startup Script.
+ * SevTech: Ages 1.20.1 Custom Registry Startup Script (Phase 2 Finalized).
  * 
- * Replaces the legacy 1.12.2 ContentTweaker registration.
- * Startup scripts are executed during game boot to register custom items, blocks, and fluids.
+ * Replaces the legacy 1.12.2 ContentTweaker scripts:
+ * - vanillaFactory.zs (Items)
+ * - fluids.zs (Fluids)
+ * - materials/init.zs & largeScale.zs & misc.zs (Metals, Gears, Plates)
+ * 
+ * Modern tech mods (Create, Immersive Engineering, Mekanism, Thermal) natively register
+ * standard gears, plates, rods, and fluids (like copper, bronze, tin, steel, plastic, ender, redstone).
+ * This script only registers items, blocks, and fluids that are uniquely custom to SevTech's progression.
  */
 
+// 1. Custom Item Registration
 StartupEvents.registry('item', event => {
-    // Register basic custom items
+    // Basic Progression & Easter Egg Items
     event.create('creeper_tear')
         .texture('kubejs:item/creeper_tear')
         .displayName('Creeper Tear');
@@ -17,9 +24,8 @@ StartupEvents.registry('item', event => {
         .texture('kubejs:item/the_oj')
         .displayName('The OJ');
 
-    // Register custom progression gear items (e.g. Bronze, Steel, Compressed Iron gears)
-    // Note: Modern tech mods (Create/IE) handle vanilla metal gears, but we register
-    // custom ones here if needed for specific progression mechanics.
+    // Unique custom gears for progression gating
+    // (Standard metal gears are provided by Create/IE/Thermal)
     const customGears = [
         'compressed_iron_gear',
         'enhanced_galgadorian_gear',
@@ -35,7 +41,8 @@ StartupEvents.registry('item', event => {
             .displayName(gear.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '));
     });
 
-    // Custom plates
+    // Unique custom plates for structural casing progression
+    // (Standard plates are provided by Create/IE)
     const customPlates = [
         'enhanced_galgadorian_plate',
         'galgadorian_plate',
@@ -51,13 +58,29 @@ StartupEvents.registry('item', event => {
     });
 });
 
+// 2. Custom Block Registration
 StartupEvents.registry('block', event => {
-    // Custom blocks can be registered here if needed for progression (e.g. custom structure blocks)
+    // Custom blocks can be registered here if needed for unique multiblocks or structural gating
 });
 
+// 3. Custom Fluid Registration
 StartupEvents.registry('fluid', event => {
-    // Custom molten metals registered here if they are missing from Tinker's/Create
-    const customFluids = [
+    // Unique fluids registered to support custom recipes & space exploration
+    
+    // Slime Fluid (Legacy fluids.zs)
+    event.create('liquid_slime')
+        .thickTexture(0x3F5329) // Olive green
+        .displayName('Liquid Slime')
+        .bucketColor(0x3F5329);
+
+    // Cheese Fluid (Legacy fluids.zs - used for Moon exploration)
+    event.create('liquid_cheese')
+        .thinTexture(0xFFE000) // Cheese yellow
+        .displayName('Liquid Cheese')
+        .bucketColor(0xFFE000);
+
+    // Molten alloys unique to custom progression machines
+    const customMoltenAlloys = [
         'enhanced_galgadorian',
         'galgadorian',
         'modularium',
@@ -65,9 +88,13 @@ StartupEvents.registry('fluid', event => {
         'steeleaf'
     ];
 
-    customFluids.forEach(fluid => {
-        event.create(`molten_${fluid}`)
-            .thinTexture(0x7F000000) // Base color mask will be applied via resource pack
-            .displayName(`Molten ${fluid.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`);
+    customMoltenAlloys.forEach(alloy => {
+        event.create(`molten_${alloy}`)
+            .stillTexture('minecraft:block/water_still') // Base fluid texture
+            .flowingTexture('minecraft:block/water_flow')
+            .color(0x7F000000) // Default mask color (will be overridden by resourcepack assets)
+            .displayName(`Molten ${alloy.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`);
     });
 });
+
+console.info("SevTech Phase 2 Custom Registry successfully loaded.");
