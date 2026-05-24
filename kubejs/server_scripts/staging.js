@@ -113,21 +113,13 @@ const BLOCK_BREAK_STAGES = {
  * cancel the teleport and notify them.
  */
 PlayerEvents.tick(event => {
-    const { player } = event;
-
-    // Enable classic step assist (step up 1 block without jumping, matching legacy Cyclic feature)
-    try {
-        if (player.getMaxUpStep() !== 1.06) {
-            player.setMaxUpStep(1.06);
-        }
-    } catch (e) {
-    }
+    let player = event.player;
 
     // Only check dimension staging every 20 ticks (1 second) to be extremely performant!
     if (player.age % 20 !== 0) return;
 
-    const dimension = player.level.dimension.toString();
-    const requiredStage = DIMENSION_STAGES[dimension];
+    let dimension = player.level.dimension.toString();
+    let requiredStage = DIMENSION_STAGES[dimension];
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not possess the knowledge to survive in this dimension yet! Required Age: ${requiredStage.toUpperCase()}`));
@@ -141,8 +133,9 @@ PlayerEvents.tick(event => {
  * Prevents players from picking up items they are not staged to handle.
  */
 ItemEvents.canPickUp(event => {
-    const { player, item } = event;
-    const requiredStage = ITEM_STAGES[item.id];
+    let player = event.player;
+    let item = event.item;
+    let requiredStage = ITEM_STAGES[item.id];
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not understand how to use this item! Required Age: ${requiredStage.toUpperCase()}`));
@@ -155,8 +148,9 @@ ItemEvents.canPickUp(event => {
  * Prevents players from placing advanced blocks they haven't researched.
  */
 BlockEvents.placed(event => {
-    const { player, block } = event;
-    const requiredStage = BLOCK_STAGES[block.id];
+    let player = event.player;
+    let block = event.block;
+    let requiredStage = BLOCK_STAGES[block.id];
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not possess the knowledge to construct this block! Required Age: ${requiredStage.toUpperCase()}`));
@@ -169,8 +163,9 @@ BlockEvents.placed(event => {
  * Prevents players from using advanced machines/stations (e.g. AE2 Controller, Mekanism Enrichment Chamber).
  */
 BlockEvents.rightClicked(event => {
-    const { player, block } = event;
-    const requiredStage = BLOCK_STAGES[block.id];
+    let player = event.player;
+    let block = event.block;
+    let requiredStage = BLOCK_STAGES[block.id];
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not know how this mechanism functions! Required Age: ${requiredStage.toUpperCase()}`));
@@ -182,13 +177,7 @@ BlockEvents.rightClicked(event => {
  * Handle Player Login / Sync.
  */
 PlayerEvents.loggedIn(event => {
-    const { player } = event;
-
-    // Enable classic step assist immediately on login
-    try {
-        player.setMaxUpStep(1.06);
-    } catch (e) {
-    }
+    let player = event.player;
 
     // Default tutorial and Stage Zero stages if the player is new
     if (!player.stages.has(STAGES.TUTORIAL)) {
@@ -203,7 +192,8 @@ PlayerEvents.loggedIn(event => {
  * When players earn custom advancements in our datapack, award them the matching game stage.
  */
 PlayerEvents.advancement(event => {
-    const { player, advancement } = event;
+    let player = event.player;
+    let advancement = event.advancement;
 
     if (advancement.id.toString() === 'sevtech:stage0/root') {
         if (!player.stages.has(STAGES.ZERO)) {
@@ -219,13 +209,15 @@ PlayerEvents.advancement(event => {
  * Prevents players from mining ores early, and implements fiber drops from grass.
  */
 BlockEvents.broken(event => {
-    const { block, level, player } = event;
+    let block = event.block;
+    let level = event.level;
+    let player = event.player;
 
     // Only run on the server side
     if (level.isClientSide()) return;
 
     // 0. Block Ore Breaking based on Staging (Simulating OreStages mod)
-    const requiredBreakStage = BLOCK_BREAK_STAGES[block.id];
+    let requiredBreakStage = BLOCK_BREAK_STAGES[block.id];
     if (requiredBreakStage && !player.stages.has(requiredBreakStage)) {
         player.tell(Text.red(`You do not possess the tools or knowledge to mine this block! Required Age: ${requiredBreakStage.toUpperCase()}`));
         event.setCanceled(true);
@@ -234,10 +226,10 @@ BlockEvents.broken(event => {
 
     // 1. Grass & Tall Grass drop Plant Fiber
     if (block.id === 'minecraft:grass' || block.id === 'minecraft:tall_grass') {
-        const chance = block.id === 'minecraft:grass' ? 0.65 : 0.80;
+        let chance = block.id === 'minecraft:grass' ? 0.65 : 0.80;
         if (Math.random() < chance) {
             // Do not drop if using shears or silk touch
-            const mainHandItem = player.getMainHandItem();
+            let mainHandItem = player.getMainHandItem();
             if (mainHandItem.id === 'minecraft:shears' || mainHandItem.hasEnchantment('minecraft:silk_touch', 1)) {
                 return;
             }
@@ -262,14 +254,29 @@ BlockEvents.broken(event => {
 });
 
 /**
- * Remove Demon's Dream Seeds from Grass drops at the root (Loot table level).
- * This ensures that seeds never drop from breaking grass, resolving floating/unpickable items.
+ * Filter Early Entity Spawns.
+ * Discards Occultism's Demon's Dream Seeds if they drop near an Age 0 player, preventing floating items on the ground.
  */
-LootEvents.modifiers(event => {
-    event.addBlockLootModifier('minecraft:grass')
-        .removeLoot('occultism:datura_seeds');
-    event.addBlockLootModifier('minecraft:tall_grass')
-        .removeLoot('occultism:datura_seeds');
+EntityEvents.spawned(event => {
+    try {
+        let entity = event.entity;
+        let level = event.level;
+        if (level.isClientSide()) return;
+        
+        let entityType = entity.type.toString();
+        if (entityType === 'minecraft:item' || entityType === 'item') {
+            let item = entity.item || (typeof entity.getItem === 'function' ? entity.getItem() : null);
+            if (item && item.id === 'occultism:datura_seeds') {
+                // Find closest player within 12 blocks of the spawn point
+                let player = level.getNearestPlayer(entity.x, entity.y, entity.z, 12, false);
+                if (player && !player.stages.has(STAGES.ONE)) {
+                    entity.discard(); // Silent filter
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error in EntityEvents.spawned: " + e);
+    }
 });
 
 console.info("SevTech Phase 5 Staging & Advancement Subsystem fully loaded.");

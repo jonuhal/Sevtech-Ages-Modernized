@@ -15,13 +15,13 @@
   },
   "parent": "sevtech:stage0/fiber",
   "criteria": {
-    "has_mesh": {
+    "has_flint": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
             "items": [
-              "kubejs:grass_fiber_mesh"
+              "minecraft:flint"
             ]
           }
         ]

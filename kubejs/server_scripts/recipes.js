@@ -55,16 +55,19 @@ ServerEvents.recipes(event => {
         // Gravel + Grass Fiber Mesh -> Flint (Mesh gets damaged by 1 and remains in grid)
         event.shapeless('minecraft:flint', [
             'minecraft:gravel',
-            Item.of('kubejs:grass_fiber_mesh').damageIngredient()
-        ]);
+            'kubejs:grass_fiber_mesh'
+        ]).damageIngredient('kubejs:grass_fiber_mesh', 1);
+
+        // Remove NTP's log-chopping to stick recipes to prevent collision with custom plank chopping recipes
+        event.remove({ output: 'minecraft:stick', input: 'notreepunching:flint_axe' });
 
         // Chopping Logs into Planks using the Flint Axe (representing the legacy Chopping Block workflow)
         const woodTypes = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak', 'mangrove', 'cherry'];
         woodTypes.forEach(wood => {
             event.shapeless(`2x minecraft:${wood}_planks`, [
                 `minecraft:${wood}_log`,
-                Item.of('notreepunching:flint_axe').damageIngredient()
-            ]);
+                'notreepunching:flint_axe'
+            ]).damageIngredient('notreepunching:flint_axe', 1);
         });
 
         // Force loose rock + flint combination for early flint tools
@@ -99,12 +102,20 @@ ServerEvents.recipes(event => {
         });
 
         // Crafting Table (Work Stump carving)
-        // Remove standard crafting table recipes (forces carving a Work Stump out of a log using a flint knife!)
+        // Remove standard crafting table recipes (forces carving a Work Stump out of a log using a flint knife or grass fiber mesh!)
         event.remove({ output: 'minecraft:crafting_table' });
-        event.shapeless('minecraft:crafting_table', [
-            '#minecraft:logs',
-            'notreepunching:flint_knife'
-        ]).keepIngredient('notreepunching:flint_knife');
+        
+        woodTypes.forEach(wood => {
+            event.shapeless('minecraft:crafting_table', [
+                `minecraft:${wood}_log`,
+                'notreepunching:flint_knife'
+            ]).keepIngredient('notreepunching:flint_knife');
+
+            event.shapeless('minecraft:crafting_table', [
+                `minecraft:${wood}_log`,
+                'kubejs:grass_fiber_mesh'
+            ]).keepIngredient('kubejs:grass_fiber_mesh');
+        });
     }
 
     // ==================================
