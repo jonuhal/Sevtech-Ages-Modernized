@@ -62,7 +62,7 @@ ServerEvents.recipes(event => {
         event.remove({ output: 'minecraft:stick', input: 'notreepunching:flint_axe' });
 
         // Chopping Logs into Planks using the Flint Axe (representing the legacy Chopping Block workflow)
-        const woodTypes = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak', 'mangrove', 'cherry'];
+        var woodTypes = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak', 'mangrove', 'cherry'];
         woodTypes.forEach(wood => {
             event.shapeless(`2x minecraft:${wood}_planks`, [
                 `minecraft:${wood}_log`,

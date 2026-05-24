@@ -134,8 +134,13 @@ PlayerEvents.tick(event => {
  */
 ItemEvents.canPickUp(event => {
     let player = event.player;
-    let item = event.item;
-    let requiredStage = ITEM_STAGES[item.id];
+    let itemEntity = event.item;
+    if (!itemEntity) return;
+
+    let itemStack = itemEntity.item;
+    if (!itemStack) return;
+
+    let requiredStage = ITEM_STAGES[itemStack.id];
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not understand how to use this item! Required Age: ${requiredStage.toUpperCase()}`));
@@ -263,8 +268,9 @@ EntityEvents.spawned(event => {
         let level = event.level;
         if (level.isClientSide()) return;
         
-        let entityType = entity.type.toString();
-        if (entityType === 'minecraft:item' || entityType === 'item') {
+        let typeStr = entity.type.toString();
+        let isItem = typeStr.includes('item') || (entity.type.id && entity.type.id.path === 'item');
+        if (isItem) {
             let item = entity.item || (typeof entity.getItem === 'function' ? entity.getItem() : null);
             if (item && item.id === 'occultism:datura_seeds') {
                 // Find closest player within 12 blocks of the spawn point
