@@ -1,0 +1,31 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:farmland"
+    },
+    "title": {
+      "translate": "advancements.stage0.farmland.title"
+    },
+    "description": {
+      "translate": "advancements.stage0.farmland.description"
+    },
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevtech:stage0/workblade",
+  "criteria": {
+    "has_farmland": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:farmland"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

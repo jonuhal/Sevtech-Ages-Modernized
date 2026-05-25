@@ -1,0 +1,31 @@
+{
+  "display": {
+    "icon": {
+      "item": "notreepunching:flint_pickaxe"
+    },
+    "title": {
+      "translate": "advancements.stage0.upgrade.title"
+    },
+    "description": {
+      "translate": "advancements.stage0.upgrade.description"
+    },
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "sevtech:stage0/firsttool",
+  "criteria": {
+    "has_pickaxe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "notreepunching:flint_pickaxe"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

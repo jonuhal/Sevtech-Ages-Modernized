@@ -58,7 +58,17 @@
               }
             },
             {
-              "condition": "minecraft:has_silk_touch"
+              "condition": "minecraft:match_tool",
+              "predicate": {
+                "enchantments": [
+                  {
+                    "enchantment": "minecraft:silk_touch",
+                    "levels": {
+                      "min": 1
+                    }
+                  }
+                ]
+              }
             }
           ],
           "inverse": true
@@ -95,7 +105,17 @@
               }
             },
             {
-              "condition": "minecraft:has_silk_touch"
+              "condition": "minecraft:match_tool",
+              "predicate": {
+                "enchantments": [
+                  {
+                    "enchantment": "minecraft:silk_touch",
+                    "levels": {
+                      "min": 1
+                    }
+                  }
+                ]
+              }
             }
           ],
           "inverse": true
