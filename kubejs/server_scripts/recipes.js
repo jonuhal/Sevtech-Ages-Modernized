@@ -70,24 +70,24 @@ ServerEvents.recipes(event => {
             ]).damageIngredient('notreepunching:flint_axe', 1);
         });
 
-        // Force loose rock + flint combination for early flint tools
+        // Force flint shard + stick stacked for early flint knife
         event.remove({ output: 'notreepunching:flint_knife' });
         event.shaped('notreepunching:flint_knife', [
             'F',
             'S'
         ], {
-            F: 'minecraft:flint',
+            F: 'notreepunching:flint_shard',
             S: 'minecraft:stick'
         });
 
-        // Flint Hatchet (forces knapping wood gathering)
+        // Flint Axe (requires flint shard, plant string, and stick)
         event.remove({ output: 'notreepunching:flint_axe' });
         event.shaped('notreepunching:flint_axe', [
-            'FK',
-            ' S'
+            'FP',
+            'S '
         ], {
-            F: 'minecraft:flint',
-            K: 'notreepunching:loose_rock',
+            F: 'notreepunching:flint_shard',
+            P: 'notreepunching:plant_string',
             S: 'minecraft:stick'
         });
 
