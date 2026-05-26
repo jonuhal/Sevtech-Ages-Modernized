@@ -192,15 +192,30 @@ PlayerEvents.loggedIn(event => {
     }
 });
 
-/**
- * Handle Advancement Unlocks.
- * When players earn custom advancements in our datapack, award them the matching game stage.
- */
 PlayerEvents.advancement(event => {
     let player = event.player;
     let advancement = event.advancement;
+    let advId = advancement.id.toString();
 
-    if (advancement.id.toString() === 'sevtech:stage0/root') {
+    // 1. Enforce parent requirements for Stage 0 advancements
+    if (advId.startsWith('sevtech:stage0/')) {
+        try {
+            let serverAdv = player.server.getAdvancements().get(advancement.id);
+            if (serverAdv && serverAdv.getParent()) {
+                let parentId = serverAdv.getParent().getId().toString();
+                if (!player.advancements.isDone(parentId)) {
+                    // Revoke child advancement because the parent isn't completed
+                    player.server.runCommandSilent(`advancement revoke ${player.username} only ${advId}`);
+                    return; // Abort further awards
+                }
+            }
+        } catch (e) {
+            console.error("Error checking advancement parent: " + e);
+        }
+    }
+
+    // 2. Award stages upon key root unlocks
+    if (advId === 'sevtech:stage0/root') {
         if (!player.stages.has(STAGES.ZERO)) {
             player.stages.add(STAGES.ZERO);
             player.tell(Text.green('You have advanced to the Stone Age (Stage Zero)! You can now break and craft primitive wooden logs and tools.'));

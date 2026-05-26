@@ -116,6 +116,36 @@ ServerEvents.recipes(event => {
                 'kubejs:grass_fiber_mesh'
             ]).keepIngredient('kubejs:grass_fiber_mesh');
         });
+
+        // Stone Pickaxe (tie cobblestone to sticks with plant string)
+        event.shaped('minecraft:stone_pickaxe', [
+            'CCC',
+            'SPS',
+            ' S '
+        ], {
+            C: 'minecraft:cobblestone',
+            S: 'minecraft:stick',
+            P: 'notreepunching:plant_string'
+        });
+
+        // Remove Flint Hoe recipe to prevent tilling and early farmland creation in Age 0
+        event.remove({ output: 'notreepunching:flint_hoe' });
+
+        // Primitive Farmland recipe fallback (mixing dirt with bone meal representing primitive soil preparation)
+        event.shapeless('minecraft:farmland', [
+            'minecraft:dirt',
+            'minecraft:bone_meal'
+        ]);
+
+        // Primitive Empty Map recipe fallback (drawing a map on plant fiber canvas with charcoal)
+        event.shaped('minecraft:map', [
+            'SSS',
+            'SCS',
+            'SSS'
+        ], {
+            S: 'notreepunching:plant_string',
+            C: 'minecraft:charcoal'
+        });
     }
 
     // ==================================
