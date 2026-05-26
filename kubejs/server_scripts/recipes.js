@@ -190,18 +190,40 @@ ServerEvents.recipes(event => {
         });
 
         // Grinding Flour in the Millstone (Replaces Horse Power grinding block)
-        event.recipes.create.milling([
-            'minecraft:wheat_flour',
-            Item.of('minecraft:wheat_flour').withChance(0.4)
-        ], 'minecraft:wheat');
+        event.custom({
+            type: 'create:milling',
+            ingredients: [
+                { item: 'minecraft:wheat' }
+            ],
+            results: [
+                { item: 'minecraft:wheat_flour' },
+                { item: 'minecraft:wheat_flour', chance: 0.4 }
+            ],
+            processingTime: 150
+        });
 
         // Compressing copper into plates via Mechanical Press
-        event.recipes.create.pressing('create:copper_sheet', 'minecraft:copper_ingot');
+        event.custom({
+            type: 'create:pressing',
+            ingredients: [
+                { item: 'minecraft:copper_ingot' }
+            ],
+            results: [
+                { item: 'create:copper_sheet' }
+            ]
+        });
 
         // Mixing Copper and Tin to smelt Bronze (Gated in Stage 1 Basin Mixing)
-        event.recipes.create.mixing('3x create:bronze_ingot', [
-            '3x #forge:ingots/copper',
-            '1x #forge:ingots/tin'
-        ]).heated();
+        event.custom({
+            type: 'create:mixing',
+            ingredients: [
+                { tag: 'forge:ingots/copper', count: 3 },
+                { tag: 'forge:ingots/tin', count: 1 }
+            ],
+            results: [
+                { item: 'create:bronze_ingot', count: 3 }
+            ],
+            heatRequirement: 'heated'
+        });
     }
 });

@@ -15,17 +15,8 @@
   },
   "parent": "sevtech:stage0/firsttool",
   "criteria": {
-    "has_pickaxe": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "notreepunching:flint_pickaxe"
-            ]
-          }
-        ]
-      }
+    "impossible": {
+      "trigger": "minecraft:impossible"
     }
   }
 }

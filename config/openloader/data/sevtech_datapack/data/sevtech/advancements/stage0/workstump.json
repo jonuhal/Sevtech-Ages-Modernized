@@ -15,17 +15,8 @@
   },
   "parent": "sevtech:stage0/collectplank",
   "criteria": {
-    "has_table": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "minecraft:crafting_table"
-            ]
-          }
-        ]
-      }
+    "impossible": {
+      "trigger": "minecraft:impossible"
     }
   }
 }

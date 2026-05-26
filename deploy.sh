@@ -62,6 +62,17 @@ else
     echo -e "${RED}Warning: 'config/openloader' not found in development directory.${NC}"
 fi
 
+# 3. Deploy Biome Spawn Point Configurations
+echo -e "${BLUE}Deploying Biome Spawn Point configurations...${NC}"
+if [ -d "$DEV_DIR/config/biomespawnpoint" ]; then
+    rm -rf "$CF_DIR/config/biomespawnpoint"
+    mkdir -p "$CF_DIR/config"
+    cp -R "$DEV_DIR/config/biomespawnpoint" "$CF_DIR/config/"
+    echo -e "${GREEN}✓ Biome Spawn Point configurations deployed successfully!${NC}"
+else
+    echo -e "${RED}Warning: 'config/biomespawnpoint' not found in development directory.${NC}"
+fi
+
 echo -e "${GREEN}=== Deployment Complete! ===${NC}"
 echo -e "To reload changes in-game:"
 echo -e "  - Server scripts / loot tables: Run ${BLUE}/reload${NC}"

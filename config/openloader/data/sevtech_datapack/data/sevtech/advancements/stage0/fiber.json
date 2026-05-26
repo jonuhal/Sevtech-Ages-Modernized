@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "notreepunching:plant_fiber"
+      "item": "notreepunching:plant_string"
     },
     "title": {
       "translate": "advancements.stage0.fiber.title"
@@ -15,17 +15,8 @@
   },
   "parent": "sevtech:stage0/root",
   "criteria": {
-    "has_fiber": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "notreepunching:plant_fiber"
-            ]
-          }
-        ]
-      }
+    "impossible": {
+      "trigger": "minecraft:impossible"
     }
   }
 }

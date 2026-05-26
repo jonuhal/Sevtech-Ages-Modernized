@@ -115,9 +115,10 @@ const BLOCK_BREAK_STAGES = {
 PlayerEvents.tick(event => {
     let player = event.player;
 
-    // Only check dimension staging every 20 ticks (1 second) to be extremely performant!
+    // Only check dimension and advancement staging every 20 ticks (1 second) to be extremely performant!
     if (player.age % 20 !== 0) return;
 
+    // 1. Dimension Gating
     let dimension = player.level.dimension.toString();
     let requiredStage = DIMENSION_STAGES[dimension];
 
@@ -126,7 +127,90 @@ PlayerEvents.tick(event => {
         // Silently teleport the player back to the Overworld at their relative portal coordinates
         player.server.runCommandSilent(`execute in minecraft:overworld run tp ${player.username} ~ ~ ~`);
     }
+
+    // 2. Strict Stage 0 Advancement Gating & Automatic Unlocking
+    global.checkStage0Progression(player);
 });
+
+// Global helper for advancement sequencing and automatic unlocking.
+// Shared with the automated playtest script for instantaneous validation!
+global.checkStage0Progression = function(player) {
+    let isDone = (advId) => {
+        let adv = player.server.getAdvancements().getAdvancement(Utils.id(advId));
+        if (!adv) return false;
+        let progress = player.advancements.getOrStartProgress(adv);
+        return progress && progress.isDone();
+    };
+    if (!isDone('sevtech:stage0/root')) return;
+
+    let hasItem = (itemId) => {
+        if (itemId.startsWith('#')) {
+            return player.inventory.find(itemId) !== -1;
+        }
+        return player.inventory.contains(itemId);
+    };
+
+    let grant = (advId) => {
+        if (!isDone(advId)) {
+            player.server.runCommandSilent(`advancement grant ${player.username} only ${advId}`);
+        }
+    };
+
+    // fiber (Fibrous Diet) -> requires plant string
+    if (hasItem('notreepunching:plant_string')) {
+        grant('sevtech:stage0/fiber');
+    }
+
+    // mesh (Mesh Your Flint) -> requires flint and parent 'fiber'
+    if (isDone('sevtech:stage0/fiber') && hasItem('minecraft:flint')) {
+        grant('sevtech:stage0/mesh');
+    }
+
+    // firsttool (It's Too Dangerous to Go Alone) -> requires flint axe
+    if (hasItem('notreepunching:flint_axe')) {
+        grant('sevtech:stage0/firsttool');
+    }
+
+    // firstbreak (Caveman Hate Tree!) -> requires log and parent 'firsttool'
+    if (isDone('sevtech:stage0/firsttool') && hasItem('#minecraft:logs')) {
+        grant('sevtech:stage0/firstbreak');
+    }
+
+    // collectplank (Rough Cut) -> requires plank and parent 'firstbreak'
+    if (isDone('sevtech:stage0/firstbreak') && hasItem('#minecraft:planks')) {
+        grant('sevtech:stage0/collectplank');
+    }
+
+    // workstump (Primitive Carpentry) -> requires crafting table and parent 'collectplank'
+    if (isDone('sevtech:stage0/collectplank') && hasItem('minecraft:crafting_table')) {
+        grant('sevtech:stage0/workstump');
+    }
+
+    // upgrade (Upgrade!) -> requires flint pickaxe and parent 'firsttool'
+    if (isDone('sevtech:stage0/firsttool') && hasItem('notreepunching:flint_pickaxe')) {
+        grant('sevtech:stage0/upgrade');
+    }
+
+    // workblade (Working for the Weekend) -> requires flint knife and parent 'upgrade'
+    if (isDone('sevtech:stage0/upgrade') && hasItem('notreepunching:flint_knife')) {
+        grant('sevtech:stage0/workblade');
+    }
+
+    // stonetools (Stone Age!) -> requires stone pickaxe and parent 'upgrade'
+    if (isDone('sevtech:stage0/upgrade') && hasItem('minecraft:stone_pickaxe')) {
+        grant('sevtech:stage0/stonetools');
+    }
+
+    // farmland (Teach A Man To Farm) -> requires farmland and parent 'workblade'
+    if (isDone('sevtech:stage0/workblade') && hasItem('minecraft:farmland')) {
+        grant('sevtech:stage0/farmland');
+    }
+
+    // atlas (Lost but Now Found) -> requires map and parent 'workblade'
+    if (isDone('sevtech:stage0/workblade') && hasItem('minecraft:map')) {
+        grant('sevtech:stage0/atlas');
+    }
+};
 
 /**
  * Handle Item Pickups.
@@ -197,24 +281,7 @@ PlayerEvents.advancement(event => {
     let advancement = event.advancement;
     let advId = advancement.id.toString();
 
-    // 1. Enforce parent requirements for Stage 0 advancements
-    if (advId.startsWith('sevtech:stage0/')) {
-        try {
-            let serverAdv = player.server.getAdvancements().get(advancement.id);
-            if (serverAdv && serverAdv.getParent()) {
-                let parentId = serverAdv.getParent().getId().toString();
-                if (!player.advancements.isDone(parentId)) {
-                    // Revoke child advancement because the parent isn't completed
-                    player.server.runCommandSilent(`advancement revoke ${player.username} only ${advId}`);
-                    return; // Abort further awards
-                }
-            }
-        } catch (e) {
-            console.error("Error checking advancement parent: " + e);
-        }
-    }
-
-    // 2. Award stages upon key root unlocks
+    // Award stages upon key root unlocks
     if (advId === 'sevtech:stage0/root') {
         if (!player.stages.has(STAGES.ZERO)) {
             player.stages.add(STAGES.ZERO);

@@ -15,15 +15,8 @@
   },
   "parent": "sevtech:stage0/firstbreak",
   "criteria": {
-    "has_plank": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "tag": "minecraft:planks"
-          }
-        ]
-      }
+    "impossible": {
+      "trigger": "minecraft:impossible"
     }
   }
 }
