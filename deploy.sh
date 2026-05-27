@@ -28,13 +28,13 @@ fi
 
 # 0. Clear existing Minecraft saved games and logs for a blank slate
 echo -e "${BLUE}Clearing out saved games, logs, and crash reports...${NC}"
-rm -rf "$CF_DIR/saves"
+# rm -rf "$CF_DIR/saves"
 rm -rf "$CF_DIR/logs"
 rm -rf "$CF_DIR/crash-reports"
-mkdir -p "$CF_DIR/saves"
+# mkdir -p "$CF_DIR/saves"
 mkdir -p "$CF_DIR/logs"
 mkdir -p "$CF_DIR/crash-reports"
-echo -e "${GREEN}✓ Clean slate achieved!${NC}"
+echo -e "${GREEN}✓ Clean slate achieved (map preserved)!${NC}"
 
 # 1. Deploy KubeJS Scripts
 echo -e "${BLUE}Deploying KubeJS scripts...${NC}"

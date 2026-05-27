@@ -367,4 +367,52 @@ EntityEvents.spawned(event => {
     }
 });
 
+/**
+ * Custom Primitive Villager Trading.
+ * Recreates the classic SevTech early-game trading mechanism to obtain Farmland and Empty Maps in Age 0:
+ *  1. Farmer: Right-click with 8x Bone Meal -> 1x Farmland.
+ *  2. Cartographer: Right-click with 1x Feather + 8x Charcoal -> 1x Map.
+ */
+EntityEvents.interacted(event => {
+    let player = event.player;
+    let target = event.target;
+    let item = event.item;
+
+    if (player.level.isClientSide()) return;
+
+    if (target.type == 'minecraft:villager') {
+        try {
+            let profession = target.getVillagerData().getProfession().toString();
+
+            // Farmer trade for Farmland (8x Bone Meal -> 1x Farmland)
+            if (profession == 'minecraft:farmer' && item.id == 'minecraft:bone_meal') {
+                if (item.count >= 8) {
+                    item.shrink(8);
+                    player.give('minecraft:farmland');
+                    player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
+                    event.cancel();
+                } else {
+                    player.tell(Text.yellow('Farmer: I need at least 8x Bone Meal to trade you Farmland!'));
+                }
+            }
+
+            // Cartographer trade for Map (1x Feather + 8x Charcoal -> 1x Map)
+            if (profession == 'minecraft:cartographer' && item.id == 'minecraft:feather') {
+                let charcoalCount = player.inventory.count('minecraft:charcoal');
+                if (charcoalCount >= 8) {
+                    item.shrink(1);
+                    player.server.runCommandSilent(`clear ${player.username} minecraft:charcoal 8`);
+                    player.give('minecraft:map');
+                    player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
+                    event.cancel();
+                } else {
+                    player.tell(Text.yellow('Cartographer: I need a Feather in your hand and at least 8x Charcoal in your inventory to draw you a Map!'));
+                }
+            }
+        } catch (e) {
+            console.error("Error in EntityEvents.interacted: " + e);
+        }
+    }
+});
+
 console.info("SevTech Phase 5 Staging & Advancement Subsystem fully loaded.");
