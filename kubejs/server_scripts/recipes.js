@@ -137,14 +137,14 @@ ServerEvents.recipes(event => {
             'minecraft:bone_meal'
         ]);
 
-        // Primitive Empty Map recipe fallback (drawing a map on plant fiber canvas with charcoal)
+        // Primitive Empty Map recipe fallback (drawing a map on plant fiber canvas with ink sac)
         event.shaped('minecraft:map', [
             'SSS',
             'SCS',
             'SSS'
         ], {
             S: 'notreepunching:plant_string',
-            C: 'minecraft:charcoal'
+            C: 'minecraft:ink_sac'
         });
     }
 

@@ -26,10 +26,10 @@ MoreJSEvents.villagerTrades(event => {
     // Farmer Trade: 8x Bone Meal -> 1x Farmland
     event.addTrade('minecraft:farmer', 1, Item.of('minecraft:bone_meal', 8), Item.of('minecraft:farmland', 1));
 
-    // Cartographer Trade: 1x Feather + 8x Charcoal -> 1x Map (Empty Map)
+    // Cartographer Trade: 1x Feather + 8x Ink Sac -> 1x Map (Empty Map)
     event.addTrade('minecraft:cartographer', 1, [
         Item.of('minecraft:feather', 1),
-        Item.of('minecraft:charcoal', 8)
+        Item.of('minecraft:ink_sac', 8)
     ], Item.of('minecraft:map', 1));
 });
 

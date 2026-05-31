@@ -216,7 +216,7 @@ ServerEvents.commandRegistry(event => {
                 player.inventory.clear();
                 player.give(Item.of('minecraft:bone_meal', 10));
                 player.give(Item.of('minecraft:feather', 10));
-                player.give(Item.of('minecraft:charcoal', 8));
+                player.give(Item.of('minecraft:ink_sac', 8));
                 player.give(Item.of('minecraft:villager_spawn_egg', 2));
 
                 // 2. Grant all Stage 0 prerequisites
