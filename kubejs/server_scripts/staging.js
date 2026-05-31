@@ -413,18 +413,9 @@ ItemEvents.entityInteracted(event => {
             if (item.id == 'minecraft:bone_meal') {
                 item.shrink(1);
                 
-                try {
-                    // Update NBT directly in memory
-                    target.mergeNbt({
-                        VillagerData: {
-                            profession: "minecraft:cartographer",
-                            level: 1
-                        },
-                        Xp: 1
-                    });
-                } catch (e) {
-                    console.error("Failed to merge cartographer NBT: " + e);
-                }
+                // Bulletproof direct-UUID NBT merge that forces full engine synchronization
+                let uuidStr = target.uuid.toString();
+                player.server.runCommandSilent(`data merge entity ${uuidStr} {VillagerData:{profession:"minecraft:cartographer",level:1},Xp:1}`);
 
                 player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_cartographer`);
                 player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
@@ -438,18 +429,9 @@ ItemEvents.entityInteracted(event => {
             if (item.id == 'minecraft:feather') {
                 item.shrink(1);
                 
-                try {
-                    // Update NBT directly in memory
-                    target.mergeNbt({
-                        VillagerData: {
-                            profession: "minecraft:farmer",
-                            level: 1
-                        },
-                        Xp: 1
-                    });
-                } catch (e) {
-                    console.error("Failed to merge farmer NBT: " + e);
-                }
+                // Bulletproof direct-UUID NBT merge that forces full engine synchronization
+                let uuidStr = target.uuid.toString();
+                player.server.runCommandSilent(`data merge entity ${uuidStr} {VillagerData:{profession:"minecraft:farmer",level:1},Xp:1}`);
 
                 player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_farmer`);
                 player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
