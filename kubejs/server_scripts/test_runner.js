@@ -244,8 +244,8 @@ ServerEvents.commandRegistry(event => {
                 player.tell(Text.green('=== Villager Training Test Prep Complete! ==='));
                 player.tell(Text.green('=================================================='));
                 player.tell(Text.yellow('1. Use the Spawn Egg to spawn an untrained Villager.'));
-                player.tell(Text.yellow('2. Right-click them with Bone Meal to train them into a Cartographer.'));
-                player.tell(Text.yellow('3. Right-click another with a Feather to train them into a Farmer.'));
+                player.tell(Text.yellow('2. Right-click them with Bone Meal to train them into a Farmer.'));
+                player.tell(Text.yellow('3. Right-click another with a Feather to train them into a Cartographer.'));
                 player.tell(Text.yellow('4. Open their standard trading GUI to buy Farmland / Map!'));
                 player.tell(Text.green('=================================================='));
 

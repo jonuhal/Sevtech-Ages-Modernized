@@ -409,24 +409,8 @@ ItemEvents.entityInteracted(event => {
         }
 
         if (isUnemployed) {
-            // 1. Train Cartographer: holding 1x Bone Meal
+            // 1. Train Farmer: holding 1x Bone Meal
             if (item.id == 'minecraft:bone_meal') {
-                item.shrink(1);
-                
-                // Bulletproof direct-UUID NBT merge that forces full engine synchronization
-                let uuidStr = target.uuid.toString();
-                player.server.runCommandSilent(`data merge entity ${uuidStr} {VillagerData:{profession:"minecraft:cartographer",level:1},Xp:1}`);
-
-                player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_cartographer`);
-                player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
-                player.server.runCommandSilent(`particle minecraft:happy_villager ${target.x} ${target.y + 1} ${target.z} 0.5 0.5 0.5 0.1 10`);
-                
-                event.cancel();
-                return;
-            }
-
-            // 2. Train Farmer: holding 1x Feather
-            if (item.id == 'minecraft:feather') {
                 item.shrink(1);
                 
                 // Bulletproof direct-UUID NBT merge that forces full engine synchronization
@@ -434,6 +418,22 @@ ItemEvents.entityInteracted(event => {
                 player.server.runCommandSilent(`data merge entity ${uuidStr} {VillagerData:{profession:"minecraft:farmer",level:1},Xp:1}`);
 
                 player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_farmer`);
+                player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
+                player.server.runCommandSilent(`particle minecraft:happy_villager ${target.x} ${target.y + 1} ${target.z} 0.5 0.5 0.5 0.1 10`);
+                
+                event.cancel();
+                return;
+            }
+
+            // 2. Train Cartographer: holding 1x Feather
+            if (item.id == 'minecraft:feather') {
+                item.shrink(1);
+                
+                // Bulletproof direct-UUID NBT merge that forces full engine synchronization
+                let uuidStr = target.uuid.toString();
+                player.server.runCommandSilent(`data merge entity ${uuidStr} {VillagerData:{profession:"minecraft:cartographer",level:1},Xp:1}`);
+
+                player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_cartographer`);
                 player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
                 player.server.runCommandSilent(`particle minecraft:happy_villager ${target.x} ${target.y + 1} ${target.z} 0.5 0.5 0.5 0.1 10`);
                 

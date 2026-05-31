@@ -24,9 +24,7 @@ MoreJSEvents.villagerTrades(event => {
 
     // 2. Register guaranteed Level 1 progression trades
     // Farmer Trade: 8x Bone Meal -> 1x Farmland
-    event.addTrade('minecraft:farmer', 1, [
-        Item.of('minecraft:bone_meal', 8)
-    ], Item.of('minecraft:farmland', 1));
+    event.addTrade('minecraft:farmer', 1, Item.of('minecraft:bone_meal', 8), Item.of('minecraft:farmland', 1));
 
     // Cartographer Trade: 1x Feather + 8x Charcoal -> 1x Map (Empty Map)
     event.addTrade('minecraft:cartographer', 1, [
