@@ -13,7 +13,7 @@
     "announce_to_chat": true,
     "hidden": false
   },
-  "parent": "sevtech:stage0/workblade",
+  "parent": "sevtech:stage0/train_farmer",
   "criteria": {
     "impossible": {
       "trigger": "minecraft:impossible"

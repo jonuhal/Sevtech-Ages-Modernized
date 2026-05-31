@@ -201,13 +201,13 @@ global.checkStage0Progression = function(player) {
         grant('sevtech:stage0/stonetools');
     }
 
-    // farmland (Teach A Man To Farm) -> requires farmland and parent 'workblade'
-    if (isDone('sevtech:stage0/workblade') && hasItem('minecraft:farmland')) {
+    // farmland (Teach A Man To Farm) -> requires farmland and parent 'train_cartographer'
+    if (isDone('sevtech:stage0/train_cartographer') && hasItem('minecraft:farmland')) {
         grant('sevtech:stage0/farmland');
     }
 
-    // atlas (Lost but Now Found) -> requires map and parent 'workblade'
-    if (isDone('sevtech:stage0/workblade') && hasItem('minecraft:map')) {
+    // atlas (Lost but Now Found) -> requires map and parent 'train_farmer'
+    if (isDone('sevtech:stage0/train_farmer') && hasItem('minecraft:map')) {
         grant('sevtech:stage0/atlas');
     }
 };
@@ -368,51 +368,99 @@ EntityEvents.spawned(event => {
 });
 
 /**
- * Custom Primitive Villager Trading.
- * Recreates the classic SevTech early-game trading mechanism to obtain Farmland and Empty Maps in Age 0:
- *  1. Farmer: Right-click with 8x Bone Meal -> 1x Farmland.
- *  2. Cartographer: Right-click with 1x Feather + 8x Charcoal -> 1x Map.
+ * Custom Primitive Villager Training (Apprenticeship).
+ * Allows players in Stage 0 to "teach" and train Unemployed villagers:
+ *  1. Right-click with 1x Bone Meal -> Trains into a Cartographer (grants "Cartography Tutor").
+ *  2. Right-click with 1x Feather -> Trains into a Farmer (grants "Agricultural Tutor").
+ * This bypasses early-game randomness and makes villager progression completely player-driven.
  */
-EntityEvents.interacted(event => {
+ItemEvents.entityInteracted(event => {
     let player = event.player;
     let target = event.target;
     let item = event.item;
 
     if (player.level.isClientSide()) return;
 
-    if (target.type == 'minecraft:villager') {
+    // Robust Entity Type Check (safe against Java class wrapper representation variations)
+    let typeStr = target.type ? target.type.toString() : '';
+    let isVillager = typeStr.includes('villager') || (target.type.id && target.type.id.toString() == 'minecraft:villager');
+
+    if (isVillager) {
+        let isUnemployed = false;
         try {
-            let profession = target.getVillagerData().getProfession().toString();
+            // Check if player has completed the workblade advancement to unlock training
+            let workbladeAdv = player.server.getAdvancements().getAdvancement(Utils.id('sevtech:stage0/workblade'));
+            let canTrain = workbladeAdv && player.advancements.getOrStartProgress(workbladeAdv).isDone();
+            if (!canTrain) return;
 
-            // Farmer trade for Farmland (8x Bone Meal -> 1x Farmland)
-            if (profession == 'minecraft:farmer' && item.id == 'minecraft:bone_meal') {
-                if (item.count >= 8) {
-                    item.shrink(8);
-                    player.give('minecraft:farmland');
-                    player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
-                    event.cancel();
-                } else {
-                    player.tell(Text.yellow('Farmer: I need at least 8x Bone Meal to trade you Farmland!'));
-                }
+            let villagerData = target.getVillagerData();
+            let professionStr = villagerData && villagerData.getProfession() ? villagerData.getProfession().toString() : '';
+            
+            // Raw NBT extraction as an absolute bulletproof fallback
+            let nbtProfession = '';
+            if (target.nbt && target.nbt.VillagerData && target.nbt.VillagerData.profession) {
+                nbtProfession = target.nbt.VillagerData.profession.toString();
             }
 
-            // Cartographer trade for Map (1x Feather + 8x Charcoal -> 1x Map)
-            if (profession == 'minecraft:cartographer' && item.id == 'minecraft:feather') {
-                let charcoalCount = player.inventory.count('minecraft:charcoal');
-                if (charcoalCount >= 8) {
-                    item.shrink(1);
-                    player.server.runCommandSilent(`clear ${player.username} minecraft:charcoal 8`);
-                    player.give('minecraft:map');
-                    player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
-                    event.cancel();
-                } else {
-                    player.tell(Text.yellow('Cartographer: I need a Feather in your hand and at least 8x Charcoal in your inventory to draw you a Map!'));
-                }
-            }
+            // Unemployed villager check
+            isUnemployed = professionStr.includes('none') || nbtProfession.includes('none');
         } catch (e) {
-            console.error("Error in EntityEvents.interacted: " + e);
+            console.error("Error in Villager Apprenticeship Check: " + e);
+        }
+
+        if (isUnemployed) {
+            // 1. Train Cartographer: holding 1x Bone Meal
+            if (item.id == 'minecraft:bone_meal') {
+                item.shrink(1);
+                
+                try {
+                    // Update NBT directly in memory
+                    target.mergeNbt({
+                        VillagerData: {
+                            profession: "minecraft:cartographer",
+                            level: 1
+                        },
+                        Xp: 1
+                    });
+                } catch (e) {
+                    console.error("Failed to merge cartographer NBT: " + e);
+                }
+
+                player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_cartographer`);
+                player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
+                player.server.runCommandSilent(`particle minecraft:happy_villager ${target.x} ${target.y + 1} ${target.z} 0.5 0.5 0.5 0.1 10`);
+                
+                event.cancel();
+                return;
+            }
+
+            // 2. Train Farmer: holding 1x Feather
+            if (item.id == 'minecraft:feather') {
+                item.shrink(1);
+                
+                try {
+                    // Update NBT directly in memory
+                    target.mergeNbt({
+                        VillagerData: {
+                            profession: "minecraft:farmer",
+                            level: 1
+                        },
+                        Xp: 1
+                    });
+                } catch (e) {
+                    console.error("Failed to merge farmer NBT: " + e);
+                }
+
+                player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_farmer`);
+                player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
+                player.server.runCommandSilent(`particle minecraft:happy_villager ${target.x} ${target.y + 1} ${target.z} 0.5 0.5 0.5 0.1 10`);
+                
+                event.cancel();
+                return;
+            }
         }
     }
 });
+
 
 console.info("SevTech Phase 5 Staging & Advancement Subsystem fully loaded.");

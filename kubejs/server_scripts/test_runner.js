@@ -50,7 +50,9 @@ ServerEvents.commandRegistry(event => {
                     'sevtech:stage0/upgrade',
                     'sevtech:stage0/workblade',
                     'sevtech:stage0/stonetools',
+                    'sevtech:stage0/train_cartographer',
                     'sevtech:stage0/farmland',
+                    'sevtech:stage0/train_farmer',
                     'sevtech:stage0/atlas'
                 ];
                 let advBackup = [];
@@ -151,16 +153,24 @@ ServerEvents.commandRegistry(event => {
                 assertTest('stonetools: Stone Pickaxe successfully unlocks "Stone Age!" advancement when Flint Pickaxe is unlocked', isDone('sevtech:stage0/stonetools'));
                 player.inventory.clear();
 
-                // TEST 11: Sequence test - farmland (Teach A Man To Farm) -> requires farmland and parent workblade
+                // TEST 11A: Sequence test - train_cartographer -> requires parent workblade and grants Cartography Tutor
+                player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_cartographer`);
+                assertTest('train_cartographer: Cartography Tutor successfully unlocked', isDone('sevtech:stage0/train_cartographer'));
+
+                // TEST 11B: Sequence test - farmland (Teach A Man To Farm) -> requires farmland and parent train_cartographer
                 player.give('minecraft:farmland');
                 global.checkStage0Progression(player);
-                assertTest('farmland: Farmland successfully unlocks "Teach A Man To Farm" advancement when Flint Knife is unlocked', isDone('sevtech:stage0/farmland'));
+                assertTest('farmland: Farmland successfully unlocks "Teach A Man To Farm" advancement when Cartography Tutor is unlocked', isDone('sevtech:stage0/farmland'));
                 player.inventory.clear();
 
-                // TEST 12: Sequence test - atlas (Lost but Now Found) -> requires map and parent workblade
+                // TEST 12A: Sequence test - train_farmer -> requires parent workblade and grants Agricultural Tutor
+                player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_farmer`);
+                assertTest('train_farmer: Agricultural Tutor successfully unlocked', isDone('sevtech:stage0/train_farmer'));
+
+                // TEST 12B: Sequence test - atlas (Lost but Now Found) -> requires map and parent train_farmer
                 player.give('minecraft:map');
                 global.checkStage0Progression(player);
-                assertTest('atlas: Map successfully unlocks "Lost but Now Found" advancement when Flint Knife is unlocked', isDone('sevtech:stage0/atlas'));
+                assertTest('atlas: Map successfully unlocks "Lost but Now Found" advancement when Agricultural Tutor is unlocked', isDone('sevtech:stage0/atlas'));
                 player.inventory.clear();
 
                 // 4. PRINT FORMATTED RESULTS REPORT
@@ -180,6 +190,65 @@ ServerEvents.commandRegistry(event => {
                 });
 
                 player.tell(Text.green('✓ Survival playtest state, inventory, and advancements successfully restored!'));
+                return 1;
+            })
+    );
+
+    event.register(
+        Commands.literal('test_villagertraining')
+            .requires(src => src.hasPermission(2))
+            .executes(ctx => {
+                let player = ctx.source.player;
+                if (!player) return 0;
+
+                // 1. Revoke training achievements to reset to pre-training state
+                let revokeList = [
+                    'sevtech:stage0/train_cartographer',
+                    'sevtech:stage0/farmland',
+                    'sevtech:stage0/train_farmer',
+                    'sevtech:stage0/atlas'
+                ];
+                revokeList.forEach(advId => {
+                    player.server.runCommandSilent(`advancement revoke ${player.username} only ${advId}`);
+                });
+
+                // 2. Clear inventory and grant test items
+                player.inventory.clear();
+                player.give(Item.of('minecraft:bone_meal', 10));
+                player.give(Item.of('minecraft:feather', 10));
+                player.give(Item.of('minecraft:charcoal', 8));
+                player.give(Item.of('minecraft:villager_spawn_egg', 2));
+
+                // 2. Grant all Stage 0 prerequisites
+                player.stages.add('tutorial');
+                player.stages.add('zero');
+
+                let prereqs = [
+                    'sevtech:stage0/root',
+                    'sevtech:stage0/fiber',
+                    'sevtech:stage0/mesh',
+                    'sevtech:stage0/firsttool',
+                    'sevtech:stage0/firstbreak',
+                    'sevtech:stage0/collectplank',
+                    'sevtech:stage0/workstump',
+                    'sevtech:stage0/upgrade',
+                    'sevtech:stage0/workblade',
+                    'sevtech:stage0/stonetools'
+                ];
+
+                prereqs.forEach(advId => {
+                    player.server.runCommandSilent(`advancement grant ${player.username} only ${advId}`);
+                });
+
+                player.tell(Text.green('=================================================='));
+                player.tell(Text.green('=== Villager Training Test Prep Complete! ==='));
+                player.tell(Text.green('=================================================='));
+                player.tell(Text.yellow('1. Use the Spawn Egg to spawn an untrained Villager.'));
+                player.tell(Text.yellow('2. Right-click them with Bone Meal to train them into a Cartographer.'));
+                player.tell(Text.yellow('3. Right-click another with a Feather to train them into a Farmer.'));
+                player.tell(Text.yellow('4. Open their standard trading GUI to buy Farmland / Map!'));
+                player.tell(Text.green('=================================================='));
+
                 return 1;
             })
     );

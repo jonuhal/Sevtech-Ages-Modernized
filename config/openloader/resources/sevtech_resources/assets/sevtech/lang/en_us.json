@@ -1,4 +1,8 @@
 {
+  "advancements.stage0.train_cartographer.title": "Cartography Tutor",
+  "advancements.stage0.train_cartographer.description": "Train an untrained Villager into a Cartographer by right-clicking them with 1x Bone Meal.",
+  "advancements.stage0.train_farmer.title": "Agricultural Tutor",
+  "advancements.stage0.train_farmer.description": "Train an untrained Villager into a Farmer by right-clicking them with 1x Feather.",
   "advancements.stage0.abyssalbiome.title": "Enter the Darklands",
   "advancements.stage0.abyssalbiome.description": "Find and enter a Abyssalcraft dark biome. These biomes exist in colder temperature areas. The world is setup in a logical heatmap meaning hot or cold biomes can be reached by traveling North or South",
   "advancements.stage0.abyssalgem.title": "Dark Gems",

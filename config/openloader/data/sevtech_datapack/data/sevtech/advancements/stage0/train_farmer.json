@@ -1,19 +1,19 @@
 {
   "display": {
     "icon": {
-      "item": "minecraft:farmland"
+      "item": "minecraft:feather"
     },
     "title": {
-      "translate": "advancements.stage0.farmland.title"
+      "translate": "advancements.stage0.train_farmer.title"
     },
     "description": {
-      "translate": "advancements.stage0.farmland.description"
+      "translate": "advancements.stage0.train_farmer.description"
     },
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
   },
-  "parent": "sevtech:stage0/train_cartographer",
+  "parent": "sevtech:stage0/workblade",
   "criteria": {
     "impossible": {
       "trigger": "minecraft:impossible"
