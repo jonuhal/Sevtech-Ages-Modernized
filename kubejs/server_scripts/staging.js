@@ -38,6 +38,11 @@ const ITEM_STAGES = {
     'create:bronze_ingot': STAGES.ONE,
     'create:bronze_sheet': STAGES.ONE,
     'occultism:datura_seeds': STAGES.ONE,
+    'minecraft:chest': STAGES.ONE,
+    'minecraft:trapped_chest': STAGES.ONE,
+    'minecraft:barrel': STAGES.ONE,
+    'minecraft:bell': STAGES.ONE,
+    'minecraft:saddle': STAGES.ONE,
 
     // Stage Two (Iron/Arcane Age) Locks
     'minecraft:iron_ingot': STAGES.TWO,
@@ -50,6 +55,28 @@ const ITEM_STAGES = {
     'minecraft:redstone': STAGES.TWO,
     'minecraft:redstone_ore': STAGES.TWO,
     'minecraft:furnace': STAGES.TWO,
+    'minecraft:obsidian': STAGES.TWO,
+    'minecraft:anvil': STAGES.TWO,
+    'minecraft:chipped_anvil': STAGES.TWO,
+    'minecraft:damaged_anvil': STAGES.TWO,
+    'minecraft:iron_helmet': STAGES.TWO,
+    'minecraft:iron_chestplate': STAGES.TWO,
+    'minecraft:iron_leggings': STAGES.TWO,
+    'minecraft:iron_boots': STAGES.TWO,
+    'minecraft:iron_sword': STAGES.TWO,
+    'minecraft:iron_pickaxe': STAGES.TWO,
+    'minecraft:iron_axe': STAGES.TWO,
+    'minecraft:iron_shovel': STAGES.TWO,
+    'minecraft:iron_hoe': STAGES.TWO,
+    'minecraft:golden_helmet': STAGES.TWO,
+    'minecraft:golden_chestplate': STAGES.TWO,
+    'minecraft:golden_leggings': STAGES.TWO,
+    'minecraft:golden_boots': STAGES.TWO,
+    'minecraft:golden_sword': STAGES.TWO,
+    'minecraft:golden_pickaxe': STAGES.TWO,
+    'minecraft:golden_axe': STAGES.TWO,
+    'minecraft:golden_shovel': STAGES.TWO,
+    'minecraft:golden_hoe': STAGES.TWO,
 
     // Stage Three (Industrial Age) Locks
     'create:steel_ingot': STAGES.THREE,
@@ -76,9 +103,16 @@ const ITEM_STAGES = {
 
 // 4. Block Interaction / Placement Gating Mapping
 const BLOCK_STAGES = {
+    'minecraft:chest': STAGES.ONE,
+    'minecraft:trapped_chest': STAGES.ONE,
+    'minecraft:barrel': STAGES.ONE,
+    'minecraft:bell': STAGES.ONE,
     'minecraft:furnace': STAGES.TWO,
     'minecraft:blast_furnace': STAGES.THREE,
     'minecraft:smoker': STAGES.TWO,
+    'minecraft:anvil': STAGES.TWO,
+    'minecraft:chipped_anvil': STAGES.TWO,
+    'minecraft:damaged_anvil': STAGES.TWO,
     'ae2:controller': STAGES.FOUR,
     'mekanism:enrichment_chamber': STAGES.FIVE
 };
@@ -134,7 +168,7 @@ PlayerEvents.tick(event => {
 
 // Global helper for advancement sequencing and automatic unlocking.
 // Shared with the automated playtest script for instantaneous validation!
-global.checkStage0Progression = function(player) {
+global.checkStage0Progression = function (player) {
     let isDone = (advId) => {
         let adv = player.server.getAdvancements().getAdvancement(Utils.id(advId));
         if (!adv) return false;
@@ -243,7 +277,7 @@ BlockEvents.placed(event => {
 
     if (requiredStage && !player.stages.has(requiredStage)) {
         player.tell(Text.red(`You do not possess the knowledge to construct this block! Required Age: ${requiredStage.toUpperCase()}`));
-        event.setCanceled(true);
+        event.cancel();
     }
 });
 
@@ -257,8 +291,8 @@ BlockEvents.rightClicked(event => {
     let requiredStage = BLOCK_STAGES[block.id];
 
     if (requiredStage && !player.stages.has(requiredStage)) {
-        player.tell(Text.red(`You do not know how this mechanism functions! Required Age: ${requiredStage.toUpperCase()}`));
-        event.setCanceled(true);
+        player.tell(Text.red(`You do not know how this functions! Required Age: ${requiredStage.toUpperCase()}`));
+        event.cancel();
     }
 });
 
@@ -307,7 +341,7 @@ BlockEvents.broken(event => {
     let requiredBreakStage = BLOCK_BREAK_STAGES[block.id];
     if (requiredBreakStage && !player.stages.has(requiredBreakStage)) {
         player.tell(Text.red(`You do not possess the tools or knowledge to mine this block! Required Age: ${requiredBreakStage.toUpperCase()}`));
-        event.setCanceled(true);
+        event.cancel();
         return;
     }
 
@@ -349,7 +383,7 @@ EntityEvents.spawned(event => {
         let entity = event.entity;
         let level = event.level;
         if (level.isClientSide()) return;
-        
+
         let typeStr = entity.type.toString();
         let isItem = typeStr.includes('item') || (entity.type.id && entity.type.id.path === 'item');
         if (isItem) {
@@ -395,7 +429,7 @@ ItemEvents.entityInteracted(event => {
 
             let villagerData = target.getVillagerData();
             let professionStr = villagerData && villagerData.getProfession() ? villagerData.getProfession().toString() : '';
-            
+
             // Raw NBT extraction as an absolute bulletproof fallback
             let nbtProfession = '';
             if (target.nbt && target.nbt.VillagerData && target.nbt.VillagerData.profession) {
@@ -412,7 +446,7 @@ ItemEvents.entityInteracted(event => {
             // 1. Train Farmer: holding 1x Bone Meal
             if (item.id == 'minecraft:bone_meal') {
                 item.shrink(1);
-                
+
                 // Bulletproof direct-UUID NBT merge that forces full engine synchronization
                 let uuidStr = target.uuid.toString();
                 player.server.runCommandSilent(`data merge entity ${uuidStr} {VillagerData:{profession:"minecraft:farmer",level:1},Xp:1}`);
@@ -420,7 +454,7 @@ ItemEvents.entityInteracted(event => {
                 player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_farmer`);
                 player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
                 player.server.runCommandSilent(`particle minecraft:happy_villager ${target.x} ${target.y + 1} ${target.z} 0.5 0.5 0.5 0.1 10`);
-                
+
                 event.cancel();
                 return;
             }
@@ -428,7 +462,7 @@ ItemEvents.entityInteracted(event => {
             // 2. Train Cartographer: holding 1x Feather
             if (item.id == 'minecraft:feather') {
                 item.shrink(1);
-                
+
                 // Bulletproof direct-UUID NBT merge that forces full engine synchronization
                 let uuidStr = target.uuid.toString();
                 player.server.runCommandSilent(`data merge entity ${uuidStr} {VillagerData:{profession:"minecraft:cartographer",level:1},Xp:1}`);
@@ -436,11 +470,41 @@ ItemEvents.entityInteracted(event => {
                 player.server.runCommandSilent(`advancement grant ${player.username} only sevtech:stage0/train_cartographer`);
                 player.server.runCommandSilent(`playsound minecraft:entity.villager.yes player ${player.username} ${target.x} ${target.y} ${target.z}`);
                 player.server.runCommandSilent(`particle minecraft:happy_villager ${target.x} ${target.y + 1} ${target.z} 0.5 0.5 0.5 0.1 10`);
-                
+
                 event.cancel();
                 return;
             }
         }
+    }
+});
+
+
+/**
+ * Handle Inventory Changes (GUI Looting / Trade Bypasses).
+ * If a player manages to acquire a staged item in their inventory (e.g. by taking it directly
+ * out of a chest GUI, trading, or breaking blocks), they will fumble and drop it immediately
+ * because they "do not understand how to use or carry it yet."
+ */
+PlayerEvents.inventoryChanged(event => {
+    let player = event.player;
+    let itemStack = event.item;
+    let slot = event.slot;
+
+    if (player.level.isClientSide()) return;
+
+    let requiredStage = ITEM_STAGES[itemStack.id];
+
+    if (requiredStage && !player.stages.has(requiredStage)) {
+        player.tell(Text.red(`You do not understand how to use or carry this item yet! Required Age: ${requiredStage.toUpperCase()}`));
+
+        // Remove item from slot safely to prevent early container looting
+        player.setStackInSlot(slot, 'minecraft:air');
+
+        // Drop the item on the ground as an entity
+        let itemEntity = player.level.createEntity('item');
+        itemEntity.item = itemStack;
+        itemEntity.setPosition(player.x, player.y + 0.5, player.z);
+        itemEntity.spawn();
     }
 });
 
