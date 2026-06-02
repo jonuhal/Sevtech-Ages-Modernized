@@ -1,40 +1,14 @@
 // priority: 0
 
 /**
- * SevTech: Ages 1.20.1 Recipes Migration Script (Phase 4 Finalized).
+ * SevTech: Ages 1.20.1 Recipes Migration Script
  * 
- * Replaces the legacy 1.12.2 recipe configurations for Primal Tech, Horse Power, and early vanilla.
- * Manages comprehensive recipe modifications for:
- * - No Tree Punching (Flint tools, Knapping, primitive fires)
- * - Create Mod (Age 0 Mechanical Windmills, Waterwheels, Millstone, Mixing Basin)
- * - Early progression gating (Blocks vanilla iron tools, chests, and furnaces early on)
  */
 
 ServerEvents.recipes(event => {
     // ==================================
     // 1. Primitive Recipe Removals
     // ==================================
-    
-    // Remove vanilla wood plank recipes (forces the player to use a chopping block/saw)
-    event.remove({ output: 'minecraft:oak_planks', type: 'minecraft:crafting_shapeless' });
-    event.remove({ output: 'minecraft:spruce_planks', type: 'minecraft:crafting_shapeless' });
-    event.remove({ output: 'minecraft:birch_planks', type: 'minecraft:crafting_shapeless' });
-    event.remove({ output: 'minecraft:jungle_planks', type: 'minecraft:crafting_shapeless' });
-    event.remove({ output: 'minecraft:acacia_planks', type: 'minecraft:crafting_shapeless' });
-    event.remove({ output: 'minecraft:dark_oak_planks', type: 'minecraft:crafting_shapeless' });
-    event.remove({ output: 'minecraft:mangrove_planks', type: 'minecraft:crafting_shapeless' });
-    event.remove({ output: 'minecraft:cherry_planks', type: 'minecraft:crafting_shapeless' });
-
-    // Remove vanilla wooden chest recipe (gates storage behind carpentry in Age 1)
-    event.remove({ output: 'minecraft:chest', type: 'minecraft:crafting_shaped' });
-
-    // Remove vanilla torches (forces fiber torches in Age 0)
-    event.remove({ output: 'minecraft:torch', type: 'minecraft:crafting_shaped' });
-
-    // Remove early metal tools (iron, gold, diamond) to prevent bypasses
-    event.remove({ output: '#forge:tools/iron' });
-    event.remove({ output: '#forge:tools/gold' });
-    event.remove({ output: '#forge:tools/diamond' });
 
     // ==================================
     // 2. No Tree Punching (Age 0 Flint Gating)
@@ -104,7 +78,7 @@ ServerEvents.recipes(event => {
         // Crafting Table (Work Stump carving)
         // Remove standard crafting table recipes (forces carving a Work Stump out of a log using a flint knife or grass fiber mesh!)
         event.remove({ output: 'minecraft:crafting_table' });
-        
+
         woodTypes.forEach(wood => {
             event.shapeless('minecraft:crafting_table', [
                 `minecraft:${wood}_log`,
@@ -177,7 +151,7 @@ ServerEvents.recipes(event => {
     // 4. Create Mod Integration (Age 0/1 Kinetic Era)
     // ==================================
     if (Platform.isLoaded('create')) {
-        
+
         // Mechanical Waterwheel (Requires wood boards and copper nuggets in Age 1)
         event.remove({ output: 'create:water_wheel' });
         event.shaped('create:water_wheel', [
