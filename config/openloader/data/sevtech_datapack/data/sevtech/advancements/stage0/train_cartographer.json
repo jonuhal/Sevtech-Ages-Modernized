@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "minecraft:bone_meal"
+      "item": "minecraft:feather"
     },
     "title": {
       "translate": "advancements.stage0.train_cartographer.title"

@@ -38,20 +38,38 @@ if (-not (Test-Path -Path $CF_DIR -PathType Container)) {
 }
 
 # 0. Clear existing Minecraft saved games and logs for a blank slate
-Write-Info "Clearing out logs and crash reports..."
-$logsDir = Join-Path $CF_DIR "logs"
-$crashReportsDir = Join-Path $CF_DIR "crash-reports"
-
-if (Test-Path -Path $logsDir -PathType Container) {
-    Remove-Item -Path $logsDir -Recurse -Force
-}
-if (Test-Path -Path $crashReportsDir -PathType Container) {
-    Remove-Item -Path $crashReportsDir -Recurse -Force
-}
-
-$null = New-Item -Path $logsDir -ItemType Directory -Force
-$null = New-Item -Path $crashReportsDir -ItemType Directory -Force
-Write-Success "Clean slate achieved (map preserved)!"
+# (Commented out to prevent file locking and NoSuchFileException in game client)
+# Write-Info "Clearing out logs and crash reports..."
+# $logsDir = Join-Path $CF_DIR "logs"
+# $kubejsLogsDir = Join-Path $logsDir "kubejs"
+# $crashReportsDir = Join-Path $CF_DIR "crash-reports"
+# 
+# try {
+#     $null = New-Item -Path $logsDir -ItemType Directory -Force
+#     $null = New-Item -Path $kubejsLogsDir -ItemType Directory -Force
+#     $null = New-Item -Path $crashReportsDir -ItemType Directory -Force
+# 
+#     # Safely truncate log files instead of deleting them to avoid invalidating game file handles
+#     $logFiles = @(
+#         (Join-Path $logsDir "latest.log"),
+#         (Join-Path $kubejsLogsDir "server.log"),
+#         (Join-Path $kubejsLogsDir "client.log"),
+#         (Join-Path $kubejsLogsDir "startup.log")
+#     )
+#     foreach ($file in $logFiles) {
+#         if (Test-Path -Path $file -PathType Leaf) {
+#             Clear-Content -Path $file -ErrorAction SilentlyContinue
+#         }
+#     }
+# 
+#     # Delete other temporary files/folders in logs and crash-reports
+#     Get-ChildItem -Path $logsDir -File -Exclude "latest.log" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+#     Get-ChildItem -Path $crashReportsDir -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+# 
+#     Write-Success "Clean slate achieved (map preserved)!"
+# } catch {
+#     Write-Warning "Could not fully clear logs/crash-reports directory (Minecraft might be running): $_"
+# }
 
 # 1. Deploy KubeJS Scripts
 Write-Info "Deploying KubeJS scripts..."

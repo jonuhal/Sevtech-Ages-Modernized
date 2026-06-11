@@ -252,4 +252,33 @@ ServerEvents.commandRegistry(event => {
                 return 1;
             })
     );
+
+    event.register(
+        Commands.literal('resetprogression')
+            .requires(src => src.hasPermission(2))
+            .executes(ctx => {
+                let player = ctx.source.player;
+                if (!player) return 0;
+
+                // 1. Revoke all advancements
+                player.server.runCommandSilent(`advancement revoke ${player.username} everything`);
+
+                // 2. Clear all stages
+                let allStages = ['tutorial', 'zero', 'one', 'two', 'three', 'four', 'five', 'creative', 'disabled'];
+                allStages.forEach(stage => player.stages.remove(stage));
+
+                // 3. Set to Age 0 (tutorial and zero stages)
+                player.stages.add('tutorial');
+                player.stages.add('zero');
+
+                player.tell(Text.green('=================================================='));
+                player.tell(Text.green('=== Progression Reset Successfully! ==='));
+                player.tell(Text.green('=================================================='));
+                player.tell(Text.yellow('All advancements revoked and stages reset to Age 0 (Stone Age).'));
+                player.tell(Text.yellow('You are now ready to start playing from scratch.'));
+                player.tell(Text.green('=================================================='));
+
+                return 1;
+            })
+    );
 });

@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "notreepunching:flint_knife"
+      "item": "minecraft:ender_eye"
     },
     "title": {
       "translate": "advancements.stage0.root.title"

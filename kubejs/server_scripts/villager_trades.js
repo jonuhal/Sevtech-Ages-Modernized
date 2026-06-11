@@ -12,14 +12,55 @@
 
 MoreJSEvents.villagerTrades(event => {
     // 1. Remove all vanilla Level 1 trades for Farmer and Cartographer to guarantee progression trades!
-    event.removeTrades(filter => {
-        filter.profession = 'minecraft:farmer';
-        filter.level = 1;
+    event.removeTrades({
+        professions: ['minecraft:farmer'],
+        level: 1,
+        firstItem: 'minecraft:wheat',
+        secondItem: 'minecraft:air',
+        outputItem: '*'
+    });
+    event.removeTrades({
+        professions: ['minecraft:farmer'],
+        level: 1,
+        firstItem: 'minecraft:potato',
+        secondItem: 'minecraft:air',
+        outputItem: '*'
+    });
+    event.removeTrades({
+        professions: ['minecraft:farmer'],
+        level: 1,
+        firstItem: 'minecraft:carrot',
+        secondItem: 'minecraft:air',
+        outputItem: '*'
+    });
+    event.removeTrades({
+        professions: ['minecraft:farmer'],
+        level: 1,
+        firstItem: 'minecraft:beetroot',
+        secondItem: 'minecraft:air',
+        outputItem: '*'
+    });
+    event.removeTrades({
+        professions: ['minecraft:farmer'],
+        level: 1,
+        firstItem: '*',
+        secondItem: 'minecraft:air',
+        outputItem: 'minecraft:bread'
     });
 
-    event.removeTrades(filter => {
-        filter.profession = 'minecraft:cartographer';
-        filter.level = 1;
+    event.removeTrades({
+        professions: ['minecraft:cartographer'],
+        level: 1,
+        firstItem: 'minecraft:paper',
+        secondItem: 'minecraft:air',
+        outputItem: '*'
+    });
+    event.removeTrades({
+        professions: ['minecraft:cartographer'],
+        level: 1,
+        firstItem: 'minecraft:emerald',
+        secondItem: 'minecraft:compass',
+        outputItem: 'minecraft:map'
     });
 
     // 2. Register guaranteed Level 1 progression trades
